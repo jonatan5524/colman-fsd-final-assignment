@@ -12,7 +12,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
   onPostCreated,
   userName,
 }) => {
-  const [text, setText] = useState("");
+  const [content, setContent] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -57,20 +57,20 @@ export const CreatePost: React.FC<CreatePostProps> = ({
       setError(null);
       setSuccess(false);
 
-      if (!text.trim()) {
-        setError("Post text cannot be empty");
+      if (!content.trim()) {
+        setError("Post content cannot be empty");
         return;
       }
 
-      if (text.length > 5000) {
-        setError("Post text must not exceed 5000 characters");
+      if (content.length > 5000) {
+        setError("Post content must not exceed 5000 characters");
         return;
       }
 
       setLoading(true);
       try {
         const data: CreatePostData = {
-          text: text.trim(),
+          content: content.trim(),
         };
 
         if (image) {
@@ -78,7 +78,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
         }
 
         await postsAPI.createPost(data);
-        setText("");
+        setContent("");
         setImage(null);
         setImagePreview(null);
         setSuccess(true);
@@ -93,7 +93,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
         setLoading(false);
       }
     },
-    [text, image, onPostCreated],
+    [content, image, onPostCreated],
   );
 
   const handleRemoveImage = useCallback(() => {
@@ -115,14 +115,14 @@ export const CreatePost: React.FC<CreatePostProps> = ({
           <textarea
             className="post-input"
             placeholder="What's on your mind?"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
             rows={4}
             maxLength={5000}
             disabled={loading}
           />
 
-          <div className="char-count">{text.length}/5000</div>
+          <div className="char-count">{content.length}/5000</div>
 
           {imagePreview && (
             <div className="image-preview-container">
@@ -154,7 +154,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
             <button
               type="submit"
               className="post-submit-btn"
-              disabled={loading || !text.trim()}
+              disabled={loading || !content.trim()}
             >
               {loading ? "Posting..." : "Post"}
             </button>

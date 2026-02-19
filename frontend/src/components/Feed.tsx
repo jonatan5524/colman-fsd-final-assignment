@@ -84,7 +84,7 @@ export const Feed: React.FC<FeedProps> = ({
 
   const handleEdit = (post: Post) => {
     setEditingPostId(post._id);
-    setEditText(post.text);
+    setEditText(post.content);
     if (post.imageUrl) {
       setEditImagePreview(post.imageUrl);
     }
@@ -114,7 +114,7 @@ export const Feed: React.FC<FeedProps> = ({
   const handleSaveEdit = async (postId: string) => {
     try {
       await postsAPI.updatePost(postId, {
-        text: editText,
+        content: editText,
         image: editImage || undefined,
       });
       setEditingPostId(null);
@@ -246,7 +246,7 @@ export const Feed: React.FC<FeedProps> = ({
                 </div>
 
                 <div className="post-content">
-                  <p className="post-text">{post.text}</p>
+                  <p className="post-text">{post.content}</p>
                   {post.imageUrl && (
                     <img
                       src={post.imageUrl}

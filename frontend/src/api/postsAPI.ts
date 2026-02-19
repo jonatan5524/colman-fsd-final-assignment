@@ -11,14 +11,16 @@ export interface Post {
     username: string;
     profilePicUrl?: string;
   };
-  text: string;
+  content: string;
   imageUrl?: string;
+  likes: string[];
+  comments: string[];
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreatePostData {
-  text: string;
+  content: string;
   image?: File;
 }
 
@@ -41,7 +43,7 @@ const apiClient: AxiosInstance = axios.create({
 
 apiClient.interceptors.request.use((config) => {
   config.headers["x-user-id"] = "mock-user-id-123";
-    
+
   return config;
 });
 
@@ -49,7 +51,7 @@ export const postsAPI = {
   // Create a new post
   createPost: async (data: CreatePostData): Promise<Post> => {
     const formData = new FormData();
-    formData.append("text", data.text);
+    formData.append("content", data.content);
     if (data.image) {
       formData.append("image", data.image);
     }
@@ -97,8 +99,8 @@ export const postsAPI = {
     data: Partial<CreatePostData>,
   ): Promise<Post> => {
     const formData = new FormData();
-    if (data.text) {
-      formData.append("text", data.text);
+    if (data.content) {
+      formData.append("content", data.content);
     }
     if (data.image) {
       formData.append("image", data.image);

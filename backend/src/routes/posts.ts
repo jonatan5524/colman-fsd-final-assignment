@@ -19,11 +19,11 @@ router.post(
   upload.single("image"),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { text } = req.body;
+      const { content } = req.body;
       const userId = req.userId;
 
       // Validate input
-      if (!text || text.trim().length === 0) {
+      if (!content || content.trim().length === 0) {
         // Clean up uploaded file if validation fails
         if (req.file) {
           fs.unlinkSync(req.file.path);
@@ -31,13 +31,13 @@ router.post(
         return res.status(400).json({ error: "Text content is required" });
       }
 
-      if (text.length > 5000) {
+      if (content.length > 5000) {
         if (req.file) {
           fs.unlinkSync(req.file.path);
         }
         return res
           .status(400)
-          .json({ error: "Text content must not exceed 5000 characters" });
+          .json({ error: "Content must not exceed 5000 characters" });
       }
 
       // Prepare image URL
@@ -50,7 +50,7 @@ router.post(
       // Create post
       const post = new Post({
         authorId: userId,
-        text: text.trim(),
+        content: content.trim(),
         imageUrl,
       });
 
@@ -197,7 +197,7 @@ router.put(
       const id = Array.isArray(req.params.id)
         ? req.params.id[0]
         : req.params.id;
-      const { text } = req.body;
+      const { content } = req.body;
       const userId = req.userId;
 
       if (!Types.ObjectId.isValid(id)) {
@@ -220,19 +220,19 @@ router.put(
           .json({ error: "You can only update your own posts" });
       }
 
-      // Validate text if provided
-      if (text !== undefined) {
-        if (text.trim().length === 0) {
+      // Validate content if provided
+      if (content !== undefined) {
+        if (content.trim().length === 0) {
           if (req.file) fs.unlinkSync(req.file.path);
-          return res.status(400).json({ error: "Text content is required" });
+          return res.status(400).json({ error: "Content is required" });
         }
-        if (text.length > 5000) {
+        if (content.length > 5000) {
           if (req.file) fs.unlinkSync(req.file.path);
           return res
             .status(400)
-            .json({ error: "Text content must not exceed 5000 characters" });
+            .json({ error: "Content must not exceed 5000 characters" });
         }
-        post.text = text.trim();
+        post.content = content.trim();
       }
 
       // Handle image update
