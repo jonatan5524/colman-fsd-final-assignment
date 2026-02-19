@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import type { Post, FeedResponse } from '../api/postsAPI';
-import { postsAPI } from '../api/postsAPI';
-import '../styles/Feed.css';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import type { Post, FeedResponse } from "../api/postsAPI";
+import { postsAPI } from "../api/postsAPI";
+import "../styles/Feed.css";
 
 interface FeedProps {
   userId?: string;
@@ -9,19 +9,23 @@ interface FeedProps {
   onPostUpdate?: () => void;
 }
 
-export const Feed: React.FC<FeedProps> = ({ userId, userPostsOnly = false, onPostUpdate }) => {
+export const Feed: React.FC<FeedProps> = ({
+  userId,
+  userPostsOnly = false,
+  onPostUpdate,
+}) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [skip, setSkip] = useState(0);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
-  const [editText, setEditText] = useState('');
+  const [editText, setEditText] = useState("");
   const [editImage, setEditImage] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
   const limit = 10;
-  const currentUserId = localStorage.getItem('userId');
+  const currentUserId = localStorage.getItem("userId");
 
   // Fetch posts
   const fetchPosts = useCallback(
@@ -45,12 +49,12 @@ export const Feed: React.FC<FeedProps> = ({ userId, userPostsOnly = false, onPos
 
         setHasMore(data.pagination.hasMore);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load posts');
+        setError(err instanceof Error ? err.message : "Failed to load posts");
       } finally {
         setLoading(false);
       }
     },
-    [userId, userPostsOnly, limit]
+    [userId, userPostsOnly, limit],
   );
 
   // Initial load
@@ -68,7 +72,7 @@ export const Feed: React.FC<FeedProps> = ({ userId, userPostsOnly = false, onPos
           fetchPosts(nextSkip);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (observerTarget.current) {
@@ -88,12 +92,14 @@ export const Feed: React.FC<FeedProps> = ({ userId, userPostsOnly = false, onPos
 
   const handleCancelEdit = () => {
     setEditingPostId(null);
-    setEditText('');
+    setEditText("");
     setEditImage(null);
     setEditImagePreview(null);
   };
 
-  const handleEditImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditImageSelect = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (file && file.size <= 5 * 1024 * 1024) {
       setEditImage(file);
@@ -112,7 +118,7 @@ export const Feed: React.FC<FeedProps> = ({ userId, userPostsOnly = false, onPos
         image: editImage || undefined,
       });
       setEditingPostId(null);
-      setEditText('');
+      setEditText("");
       setEditImage(null);
       setEditImagePreview(null);
       setSkip(0);
@@ -121,12 +127,12 @@ export const Feed: React.FC<FeedProps> = ({ userId, userPostsOnly = false, onPos
         onPostUpdate();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update post');
+      setError(err instanceof Error ? err.message : "Failed to update post");
     }
   };
 
   const handleDelete = async (postId: string) => {
-    if (!window.confirm('Are you sure you want to delete this post?')) {
+    if (!window.confirm("Are you sure you want to delete this post?")) {
       return;
     }
 
@@ -137,7 +143,7 @@ export const Feed: React.FC<FeedProps> = ({ userId, userPostsOnly = false, onPos
         onPostUpdate();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete post');
+      setError(err instanceof Error ? err.message : "Failed to delete post");
     }
   };
 
@@ -149,7 +155,7 @@ export const Feed: React.FC<FeedProps> = ({ userId, userPostsOnly = false, onPos
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (minutes < 1) return 'just now';
+    if (minutes < 1) return "just now";
     if (minutes < 60) return `${minutes}m ago`;
     if (hours < 24) return `${hours}h ago`;
     if (days < 7) return `${days}d ago`;
@@ -158,71 +164,80 @@ export const Feed: React.FC<FeedProps> = ({ userId, userPostsOnly = false, onPos
   };
 
   return (
-    <div className='feed-container'>
-      {error && <div className='feed-error'>{error}</div>}
+    <div className="feed-container">
+      {error && <div className="feed-error">{error}</div>}
 
-      <div className='posts-list'>
+      <div className="posts-list">
         {posts.map((post) => (
-          <article key={post._id} className='post-card'>
+          <article key={post._id} className="post-card">
             {editingPostId === post._id ? (
-              <div className='edit-post-form'>
+              <div className="edit-post-form">
                 <textarea
-                  className='edit-textarea'
+                  className="edit-textarea"
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
                   maxLength={5000}
                 />
                 {editImagePreview && (
-                  <img src={editImagePreview} alt='Edit preview' className='edit-preview' />
+                  <img
+                    src={editImagePreview}
+                    alt="Edit preview"
+                    className="edit-preview"
+                  />
                 )}
-                <label className='edit-image-label'>
+                <label className="edit-image-label">
                   📸 Change Image
                   <input
-                    type='file'
-                    accept='image/*'
+                    type="file"
+                    accept="image/*"
                     onChange={handleEditImageSelect}
-                    style={{ display: 'none' }}
+                    style={{ display: "none" }}
                   />
                 </label>
-                <div className='edit-actions'>
-                  <button className='save-btn' onClick={() => handleSaveEdit(post._id)}>
+                <div className="edit-actions">
+                  <button
+                    className="save-btn"
+                    onClick={() => handleSaveEdit(post._id)}
+                  >
                     Save
                   </button>
-                  <button className='cancel-btn' onClick={handleCancelEdit}>
+                  <button className="cancel-btn" onClick={handleCancelEdit}>
                     Cancel
                   </button>
                 </div>
               </div>
             ) : (
               <>
-                <div className='post-header'>
-                  <div className='author-info'>
+                <div className="post-header">
+                  <div className="author-info">
                     {post.authorId.profilePicUrl && (
                       <img
                         src={post.authorId.profilePicUrl}
                         alt={post.authorId.username}
-                        className='author-avatar'
+                        className="author-avatar"
                       />
                     )}
-                    <div className='author-details'>
-                      <h3 className='author-name'>{post.authorId.username}</h3>
-                      <span className='post-time'>{formatDate(post.createdAt)}</span>
+                    <div className="author-details">
+                      <h3 className="author-name">{post.authorId.username}</h3>
+                      <span className="post-time">
+                        {formatDate(post.createdAt)}
+                      </span>
                     </div>
                   </div>
 
                   {currentUserId === post.authorId._id && (
-                    <div className='post-actions'>
+                    <div className="post-actions">
                       <button
-                        className='edit-btn'
+                        className="edit-btn"
                         onClick={() => handleEdit(post)}
-                        title='Edit post'
+                        title="Edit post"
                       >
                         ✏️
                       </button>
                       <button
-                        className='delete-btn'
+                        className="delete-btn"
                         onClick={() => handleDelete(post._id)}
-                        title='Delete post'
+                        title="Delete post"
                       >
                         🗑️
                       </button>
@@ -230,15 +245,21 @@ export const Feed: React.FC<FeedProps> = ({ userId, userPostsOnly = false, onPos
                   )}
                 </div>
 
-                <div className='post-content'>
-                  <p className='post-text'>{post.text}</p>
+                <div className="post-content">
+                  <p className="post-text">{post.text}</p>
                   {post.imageUrl && (
-                    <img src={post.imageUrl} alt='Post' className='post-image' />
+                    <img
+                      src={post.imageUrl}
+                      alt="Post"
+                      className="post-image"
+                    />
                   )}
                 </div>
 
-                <div className='post-footer'>
-                  <span className='post-date'>{new Date(post.createdAt).toLocaleString()}</span>
+                <div className="post-footer">
+                  <span className="post-date">
+                    {new Date(post.createdAt).toLocaleString()}
+                  </span>
                 </div>
               </>
             )}
@@ -246,16 +267,18 @@ export const Feed: React.FC<FeedProps> = ({ userId, userPostsOnly = false, onPos
         ))}
       </div>
 
-      {hasMore && <div ref={observerTarget} className='loading-more'>
-        {loading ? 'Loading more posts...' : 'Scroll to load more'}
-      </div>}
+      {hasMore && (
+        <div ref={observerTarget} className="loading-more">
+          {loading ? "Loading more posts..." : "Scroll to load more"}
+        </div>
+      )}
 
       {!hasMore && posts.length > 0 && (
-        <div className='no-more-posts'>No more posts to load</div>
+        <div className="no-more-posts">No more posts to load</div>
       )}
 
       {posts.length === 0 && !loading && (
-        <div className='no-posts'>No posts yet. Be the first to post!</div>
+        <div className="no-posts">No posts yet. Be the first to post!</div>
       )}
     </div>
   );

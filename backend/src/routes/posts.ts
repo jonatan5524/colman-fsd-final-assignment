@@ -1,11 +1,11 @@
-import { Router, Response } from 'express';
-import { Types } from 'mongoose';
-import { Post, User } from '../models';
-import { authenticateToken, AuthRequest } from '../middleware/auth';
-import { upload } from '../middleware/multer';
-import { ApiError } from '../middleware/errorHandler';
-import fs from 'fs';
-import path from 'path';
+import { Router, Response } from "express";
+import { Types } from "mongoose";
+import { Post, User } from "../models";
+import { authenticateToken, AuthRequest } from "../middleware/auth";
+import { upload } from "../middleware/multer";
+import { ApiError } from "../middleware/errorHandler";
+import fs from "fs";
+import path from "path";
 
 const router = Router();
 
@@ -13,69 +13,79 @@ const router = Router();
  * POST /api/posts
  * Create a new post with optional image
  */
-router.post('/', authenticateToken, upload.single('image'), async (req: AuthRequest, res: Response) => {
-  try {
-    const { text } = req.body;
-    const userId = req.userId;
+router.post(
+  "/",
+  authenticateToken,
+  upload.single("image"),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { text } = req.body;
+      const userId = req.userId;
 
-    // Validate input
-    if (!text || text.trim().length === 0) {
-      // Clean up uploaded file if validation fails
+      // Validate input
+      if (!text || text.trim().length === 0) {
+        // Clean up uploaded file if validation fails
+        if (req.file) {
+          fs.unlinkSync(req.file.path);
+        }
+        return res.status(400).json({ error: "Text content is required" });
+      }
+
+      if (text.length > 5000) {
+        if (req.file) {
+          fs.unlinkSync(req.file.path);
+        }
+        return res
+          .status(400)
+          .json({ error: "Text content must not exceed 5000 characters" });
+      }
+
+      // Prepare image URL
+      let imageUrl: string | undefined;
       if (req.file) {
-        fs.unlinkSync(req.file.path);
+        // Store relative path for serving via Express static middleware
+        imageUrl = `/uploads/posts/${req.file.filename}`;
       }
-      return res.status(400).json({ error: 'Text content is required' });
-    }
 
-    if (text.length > 5000) {
+      // Create post
+      const post = new Post({
+        authorId: userId,
+        text: text.trim(),
+        imageUrl,
+      });
+
+      await post.save();
+
+      // Populate author info
+      const populatedPost = await Post.findById(post._id).populate(
+        "authorId",
+        "username profilePicUrl",
+      );
+
+      res.status(201).json({
+        message: "Post created successfully",
+        post: populatedPost,
+      });
+    } catch (error) {
+      // Clean up uploaded file on error
       if (req.file) {
-        fs.unlinkSync(req.file.path);
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (e) {
+          console.error("Error cleaning up file:", e);
+        }
       }
-      return res.status(400).json({ error: 'Text content must not exceed 5000 characters' });
+      console.error("Error creating post:", error);
+      res.status(500).json({ error: "Failed to create post" });
     }
-
-    // Prepare image URL
-    let imageUrl: string | undefined;
-    if (req.file) {
-      // Store relative path for serving via Express static middleware
-      imageUrl = `/uploads/posts/${req.file.filename}`;
-    }
-
-    // Create post
-    const post = new Post({
-      authorId: userId,
-      text: text.trim(),
-      imageUrl,
-    });
-
-    await post.save();
-
-    // Populate author info
-    const populatedPost = await Post.findById(post._id).populate('authorId', 'username profilePicUrl');
-
-    res.status(201).json({
-      message: 'Post created successfully',
-      post: populatedPost,
-    });
-  } catch (error) {
-    // Clean up uploaded file on error
-    if (req.file) {
-      try {
-        fs.unlinkSync(req.file.path);
-      } catch (e) {
-        console.error('Error cleaning up file:', e);
-      }
-    }
-    console.error('Error creating post:', error);
-    res.status(500).json({ error: 'Failed to create post' });
-  }
-});
+  },
+);
 
 /**
  * GET /api/posts
  * Get paginated feed of posts
  */
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get("/", async (req: AuthRequest, res: Response) => {
   try {
     const limit = Math.min(parseInt(req.query.limit as string) || 10, 100); // Max 100 per page
     const skip = parseInt(req.query.skip as string) || 0;
@@ -84,7 +94,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip(skip)
-      .populate('authorId', 'username profilePicUrl')
+      .populate("authorId", "username profilePicUrl")
       .lean();
 
     const total = await Post.countDocuments();
@@ -99,8 +109,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching feed:', error);
-    res.status(500).json({ error: 'Failed to fetch feed' });
+    console.error("Error fetching feed:", error);
+    res.status(500).json({ error: "Failed to fetch feed" });
   }
 });
 
@@ -108,13 +118,15 @@ router.get('/', async (req: AuthRequest, res: Response) => {
  * GET /api/posts/user/:userId
  * Get all posts by a specific user
  */
-router.get('/user/:userId', async (req: AuthRequest, res: Response) => {
+router.get("/user/:userId", async (req: AuthRequest, res: Response) => {
   try {
-    const userId = Array.isArray(req.params.userId) ? req.params.userId[0] : req.params.userId;
+    const userId = Array.isArray(req.params.userId)
+      ? req.params.userId[0]
+      : req.params.userId;
 
     // Validate ObjectId
     if (!Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ error: 'Invalid user ID' });
+      return res.status(400).json({ error: "Invalid user ID" });
     }
 
     const limit = Math.min(parseInt(req.query.limit as string) || 10, 100);
@@ -124,7 +136,7 @@ router.get('/user/:userId', async (req: AuthRequest, res: Response) => {
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip(skip)
-      .populate('authorId', 'username profilePicUrl')
+      .populate("authorId", "username profilePicUrl")
       .lean();
 
     const total = await Post.countDocuments({ authorId: userId });
@@ -139,8 +151,8 @@ router.get('/user/:userId', async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching user posts:', error);
-    res.status(500).json({ error: 'Failed to fetch user posts' });
+    console.error("Error fetching user posts:", error);
+    res.status(500).json({ error: "Failed to fetch user posts" });
   }
 });
 
@@ -148,24 +160,27 @@ router.get('/user/:userId', async (req: AuthRequest, res: Response) => {
  * GET /api/posts/:id
  * Get a single post by ID
  */
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get("/:id", async (req: AuthRequest, res: Response) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
     if (!Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: 'Invalid post ID' });
+      return res.status(400).json({ error: "Invalid post ID" });
     }
 
-    const post = await Post.findById(id).populate('authorId', 'username profilePicUrl');
+    const post = await Post.findById(id).populate(
+      "authorId",
+      "username profilePicUrl",
+    );
 
     if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
+      return res.status(404).json({ error: "Post not found" });
     }
 
     res.json(post);
   } catch (error) {
-    console.error('Error fetching post:', error);
-    res.status(500).json({ error: 'Failed to fetch post' });
+    console.error("Error fetching post:", error);
+    res.status(500).json({ error: "Failed to fetch post" });
   }
 });
 
@@ -173,123 +188,145 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
  * PUT /api/posts/:id
  * Update a post (owner only)
  */
-router.put('/:id', authenticateToken, upload.single('image'), async (req: AuthRequest, res: Response) => {
-  try {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const { text } = req.body;
-    const userId = req.userId;
+router.put(
+  "/:id",
+  authenticateToken,
+  upload.single("image"),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const id = Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
+      const { text } = req.body;
+      const userId = req.userId;
 
-    if (!Types.ObjectId.isValid(id)) {
-      if (req.file) fs.unlinkSync(req.file.path);
-      return res.status(400).json({ error: 'Invalid post ID' });
-    }
-
-    const post = await Post.findById(id);
-
-    if (!post) {
-      if (req.file) fs.unlinkSync(req.file.path);
-      return res.status(404).json({ error: 'Post not found' });
-    }
-
-    // Verify ownership
-    if (post.authorId.toString() !== userId) {
-      if (req.file) fs.unlinkSync(req.file.path);
-      return res.status(403).json({ error: 'You can only update your own posts' });
-    }
-
-    // Validate text if provided
-    if (text !== undefined) {
-      if (text.trim().length === 0) {
+      if (!Types.ObjectId.isValid(id)) {
         if (req.file) fs.unlinkSync(req.file.path);
-        return res.status(400).json({ error: 'Text content is required' });
+        return res.status(400).json({ error: "Invalid post ID" });
       }
-      if (text.length > 5000) {
-        if (req.file) fs.unlinkSync(req.file.path);
-        return res.status(400).json({ error: 'Text content must not exceed 5000 characters' });
-      }
-      post.text = text.trim();
-    }
 
-    // Handle image update
-    if (req.file) {
-      // Delete old image if exists
-      if (post.imageUrl) {
-        const oldImagePath = path.join(__dirname, '../../', post.imageUrl);
-        try {
-          if (fs.existsSync(oldImagePath)) {
-            fs.unlinkSync(oldImagePath);
+      const post = await Post.findById(id);
+
+      if (!post) {
+        if (req.file) fs.unlinkSync(req.file.path);
+        return res.status(404).json({ error: "Post not found" });
+      }
+
+      // Verify ownership
+      if (post.authorId.toString() !== userId) {
+        if (req.file) fs.unlinkSync(req.file.path);
+        return res
+          .status(403)
+          .json({ error: "You can only update your own posts" });
+      }
+
+      // Validate text if provided
+      if (text !== undefined) {
+        if (text.trim().length === 0) {
+          if (req.file) fs.unlinkSync(req.file.path);
+          return res.status(400).json({ error: "Text content is required" });
+        }
+        if (text.length > 5000) {
+          if (req.file) fs.unlinkSync(req.file.path);
+          return res
+            .status(400)
+            .json({ error: "Text content must not exceed 5000 characters" });
+        }
+        post.text = text.trim();
+      }
+
+      // Handle image update
+      if (req.file) {
+        // Delete old image if exists
+        if (post.imageUrl) {
+          const oldImagePath = path.join(__dirname, "../../", post.imageUrl);
+          try {
+            if (fs.existsSync(oldImagePath)) {
+              fs.unlinkSync(oldImagePath);
+            }
+          } catch (err) {
+            console.error("Error deleting old image:", err);
           }
-        } catch (err) {
-          console.error('Error deleting old image:', err);
+        }
+        post.imageUrl = `/uploads/posts/${req.file.filename}`;
+      }
+
+      await post.save();
+
+      const updatedPost = await Post.findById(post._id).populate(
+        "authorId",
+        "username profilePicUrl",
+      );
+
+      res.json({
+        message: "Post updated successfully",
+        post: updatedPost,
+      });
+    } catch (error) {
+      if (req.file) {
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (e) {
+          console.error("Error cleaning up file:", e);
         }
       }
-      post.imageUrl = `/uploads/posts/${req.file.filename}`;
+      console.error("Error updating post:", error);
+      res.status(500).json({ error: "Failed to update post" });
     }
-
-    await post.save();
-
-    const updatedPost = await Post.findById(post._id).populate('authorId', 'username profilePicUrl');
-
-    res.json({
-      message: 'Post updated successfully',
-      post: updatedPost,
-    });
-  } catch (error) {
-    if (req.file) {
-      try {
-        fs.unlinkSync(req.file.path);
-      } catch (e) {
-        console.error('Error cleaning up file:', e);
-      }
-    }
-    console.error('Error updating post:', error);
-    res.status(500).json({ error: 'Failed to update post' });
-  }
-});
+  },
+);
 
 /**
  * DELETE /api/posts/:id
  * Delete a post (owner only)
  */
-router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
-  try {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const userId = req.userId;
+router.delete(
+  "/:id",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const id = Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
+      const userId = req.userId;
 
-    if (!Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: 'Invalid post ID' });
-    }
-
-    const post = await Post.findById(id);
-
-    if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
-    }
-
-    // Verify ownership
-    if (post.authorId.toString() !== userId) {
-      return res.status(403).json({ error: 'You can only delete your own posts' });
-    }
-
-    // Delete image file if exists
-    if (post.imageUrl) {
-      const imagePath = path.join(__dirname, '../../', post.imageUrl);
-      try {
-        if (fs.existsSync(imagePath)) {
-          fs.unlinkSync(imagePath);
-        }
-      } catch (err) {
-        console.error('Error deleting image:', err);
+      if (!Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ error: "Invalid post ID" });
       }
+
+      const post = await Post.findById(id);
+
+      if (!post) {
+        return res.status(404).json({ error: "Post not found" });
+      }
+
+      // Verify ownership
+      if (post.authorId.toString() !== userId) {
+        return res
+          .status(403)
+          .json({ error: "You can only delete your own posts" });
+      }
+
+      // Delete image file if exists
+      if (post.imageUrl) {
+        const imagePath = path.join(__dirname, "../../", post.imageUrl);
+        try {
+          if (fs.existsSync(imagePath)) {
+            fs.unlinkSync(imagePath);
+          }
+        } catch (err) {
+          console.error("Error deleting image:", err);
+        }
+      }
+
+      await Post.findByIdAndDelete(id);
+
+      res.json({ message: "Post deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      res.status(500).json({ error: "Failed to delete post" });
     }
-
-    await Post.findByIdAndDelete(id);
-
-    res.json({ message: 'Post deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting post:', error);
-    res.status(500).json({ error: 'Failed to delete post' });
-  }
-});
+  },
+);
 
 export default router;

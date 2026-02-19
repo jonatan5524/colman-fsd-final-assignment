@@ -1,45 +1,55 @@
-import React, { useState, useCallback } from 'react';
-import type { CreatePostData } from '../api/postsAPI';
-import { postsAPI } from '../api/postsAPI';
-import '../styles/CreatePost.css';
+import React, { useState, useCallback } from "react";
+import type { CreatePostData } from "../api/postsAPI";
+import { postsAPI } from "../api/postsAPI";
+import "../styles/CreatePost.css";
 
 interface CreatePostProps {
   onPostCreated?: () => void;
   userName?: string;
 }
 
-export const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, userName }) => {
-  const [text, setText] = useState('');
+export const CreatePost: React.FC<CreatePostProps> = ({
+  onPostCreated,
+  userName,
+}) => {
+  const [text, setText] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const handleImageSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Validate file size (5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Image must be less than 5MB');
-        return;
-      }
+  const handleImageSelect = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          setError("Image must be less than 5MB");
+          return;
+        }
 
-      // Validate file type
-      if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)) {
-        setError('Only image files are allowed (JPEG, PNG, GIF, WebP)');
-        return;
-      }
+        // Validate file type
+        if (
+          !["image/jpeg", "image/png", "image/gif", "image/webp"].includes(
+            file.type,
+          )
+        ) {
+          setError("Only image files are allowed (JPEG, PNG, GIF, WebP)");
+          return;
+        }
 
-      setImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      setError(null);
-    }
-  }, []);
+        setImage(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+        setError(null);
+      }
+    },
+    [],
+  );
 
   const handleSubmit = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
@@ -48,12 +58,12 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, userName 
       setSuccess(false);
 
       if (!text.trim()) {
-        setError('Post text cannot be empty');
+        setError("Post text cannot be empty");
         return;
       }
 
       if (text.length > 5000) {
-        setError('Post text must not exceed 5000 characters');
+        setError("Post text must not exceed 5000 characters");
         return;
       }
 
@@ -68,7 +78,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, userName 
         }
 
         await postsAPI.createPost(data);
-        setText('');
+        setText("");
         setImage(null);
         setImagePreview(null);
         setSuccess(true);
@@ -78,12 +88,12 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, userName 
           onPostCreated();
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to create post');
+        setError(err instanceof Error ? err.message : "Failed to create post");
       } finally {
         setLoading(false);
       }
     },
-    [text, image, onPostCreated]
+    [text, image, onPostCreated],
   );
 
   const handleRemoveImage = useCallback(() => {
@@ -92,18 +102,18 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, userName 
   }, []);
 
   return (
-    <div className='create-post-container'>
-      <div className='create-post-card'>
-        <div className='create-post-header'>
-          <div className='user-info'>
+    <div className="create-post-container">
+      <div className="create-post-card">
+        <div className="create-post-header">
+          <div className="user-info">
             {/* <img src={userProfilePic || '/default-avatar.png'} alt={userName} className='user-avatar' /> */}
-            <span className='user-name'>{userName || 'Anonymous'}</span>
+            <span className="user-name">{userName || "Anonymous"}</span>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className='create-post-form'>
+        <form onSubmit={handleSubmit} className="create-post-form">
           <textarea
-            className='post-input'
+            className="post-input"
             placeholder="What's on your mind?"
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -112,16 +122,14 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, userName 
             disabled={loading}
           />
 
-          <div className='char-count'>
-            {text.length}/5000
-          </div>
+          <div className="char-count">{text.length}/5000</div>
 
           {imagePreview && (
-            <div className='image-preview-container'>
-              <img src={imagePreview} alt='Preview' className='image-preview' />
+            <div className="image-preview-container">
+              <img src={imagePreview} alt="Preview" className="image-preview" />
               <button
-                type='button'
-                className='remove-image-btn'
+                type="button"
+                className="remove-image-btn"
                 onClick={handleRemoveImage}
                 disabled={loading}
               >
@@ -130,30 +138,32 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, userName 
             </div>
           )}
 
-          <div className='post-actions'>
-            <label htmlFor='image-input' className='image-upload-label'>
+          <div className="post-actions">
+            <label htmlFor="image-input" className="image-upload-label">
               📸 Add Image
             </label>
             <input
-              id='image-input'
-              type='file'
-              accept='image/*'
+              id="image-input"
+              type="file"
+              accept="image/*"
               onChange={handleImageSelect}
               disabled={loading}
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
             />
 
             <button
-              type='submit'
-              className='post-submit-btn'
+              type="submit"
+              className="post-submit-btn"
               disabled={loading || !text.trim()}
             >
-              {loading ? 'Posting...' : 'Post'}
+              {loading ? "Posting..." : "Post"}
             </button>
           </div>
 
-          {error && <div className='error-message'>{error}</div>}
-          {success && <div className='success-message'>Post created successfully!</div>}
+          {error && <div className="error-message">{error}</div>}
+          {success && (
+            <div className="success-message">Post created successfully!</div>
+          )}
         </form>
       </div>
     </div>

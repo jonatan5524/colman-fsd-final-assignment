@@ -1,77 +1,81 @@
-import dotenv from 'dotenv';
-import path from 'path';
+import dotenv from "dotenv";
+import path from "path";
 
 // Load environment variables based on NODE_ENV
-const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
-dotenv.config({ path: path.resolve(__dirname, '..', envFile) });
+const envFile =
+  process.env.NODE_ENV === "production"
+    ? ".env.production"
+    : ".env.development";
+dotenv.config({ path: path.resolve(__dirname, "..", envFile) });
 
-import express, { Request, Response } from 'express';
-import mongoose from 'mongoose';
-import swaggerUi from 'swagger-ui-express';
-import swaggerJsdoc from 'swagger-jsdoc';
-import postsRouter from './routes/posts';
-import { errorHandler } from './middleware/errorHandler';
+import express, { Request, Response } from "express";
+import mongoose from "mongoose";
+import swaggerUi from "swagger-ui-express";
+import swaggerJsdoc from "swagger-jsdoc";
+import postsRouter from "./routes/posts";
+import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/fsd-posts';
+const MONGODB_URI =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/fsd-posts";
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files (uploaded images)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Connect to MongoDB
 mongoose
   .connect(MONGODB_URI)
   .then(() => {
-    console.log('Connected to MongoDB');
+    console.log("Connected to MongoDB");
   })
   .catch((error) => {
-    console.error('MongoDB connection error:', error);
+    console.error("MongoDB connection error:", error);
     process.exit(1);
   });
 
 // Swagger configuration
 const swaggerOptions = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'Posts API',
-      version: '1.0.0',
-      description: 'Social content management API with posts and images',
+      title: "Posts API",
+      version: "1.0.0",
+      description: "Social content management API with posts and images",
     },
     servers: [
       {
         url: `http://localhost:${PORT}`,
-        description: 'Development server',
+        description: "Development server",
       },
     ],
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
         },
       },
     },
   },
-  apis: ['./src/routes/*.ts'],
+  apis: ["./src/routes/*.ts"],
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
-app.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'Welcome to the Express API' });
+app.get("/", (req: Request, res: Response) => {
+  res.json({ message: "Welcome to the Express API" });
 });
 
-app.get('/health', (req: Request, res: Response) => {
-  res.json({ status: 'OK' });
+app.get("/health", (req: Request, res: Response) => {
+  res.json({ status: "OK" });
 });
 
 /**
@@ -208,7 +212,7 @@ app.get('/health', (req: Request, res: Response) => {
  */
 
 // Posts API routes
-app.use('/api/posts', postsRouter);
+app.use("/api/posts", postsRouter);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);
