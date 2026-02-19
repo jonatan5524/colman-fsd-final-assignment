@@ -7,6 +7,7 @@ dotenv.config({ path: path.resolve(__dirname, '..', envFile) });
 
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import morgan from 'morgan';
 import mongoose from 'mongoose';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger';
@@ -14,6 +15,11 @@ import authRoutes from './routes/authRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Request logging (skip in test environment)
+if (process.env.NODE_ENV !== 'test') {
+	app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+}
 
 app.use(cors({
 	origin: process.env.FRONTEND_URL || 'http://localhost:5173',
