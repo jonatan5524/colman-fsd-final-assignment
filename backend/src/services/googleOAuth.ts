@@ -27,10 +27,13 @@ export const isGoogleOAuthConfigured = (): boolean => {
 
 export const getGoogleAuthUrl = (): string => {
 	const clientId = process.env.GOOGLE_CLIENT_ID;
+	if (!clientId) {
+		throw new Error('GOOGLE_CLIENT_ID environment variable is not configured');
+	}
 	const redirectUri = `${process.env.BACKEND_URL || 'http://localhost:3000'}/auth/google/callback`;
 
 	const params = new URLSearchParams({
-		client_id: clientId!,
+		client_id: clientId,
 		redirect_uri: redirectUri,
 		response_type: 'code',
 		scope: 'openid email profile',
@@ -44,6 +47,9 @@ export const getGoogleAuthUrl = (): string => {
 export const exchangeCodeForTokens = async (code: string): Promise<GoogleTokenResponse> => {
 	const clientId = process.env.GOOGLE_CLIENT_ID;
 	const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+	if (!clientId || !clientSecret) {
+		throw new Error('Google OAuth environment variables (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET) are not configured');
+	}
 	const redirectUri = `${process.env.BACKEND_URL || 'http://localhost:3000'}/auth/google/callback`;
 
 	const response = await fetch(GOOGLE_TOKEN_URL, {
@@ -53,8 +59,8 @@ export const exchangeCodeForTokens = async (code: string): Promise<GoogleTokenRe
 		},
 		body: new URLSearchParams({
 			code,
-			client_id: clientId!,
-			client_secret: clientSecret!,
+			client_id: clientId,
+			client_secret: clientSecret,
 			redirect_uri: redirectUri,
 			grant_type: 'authorization_code',
 		}),

@@ -29,5 +29,6 @@ export const authenticateToken: RequestHandler = (
 			return;
 		}
 		res.status(403).json({ message: 'Invalid access token' });
+		return;
 	}
 };

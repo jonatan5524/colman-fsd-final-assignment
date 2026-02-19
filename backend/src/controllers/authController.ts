@@ -35,9 +35,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 			username,
 		});
 
+
 		const tokens = generateTokens(user._id);
 
-		user.refreshTokens.push(tokens.refreshToken);
+		const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, SALT_ROUNDS);
+		user.refreshTokens.push(hashedRefreshToken);
 		await user.save();
 
 		res.status(201).json({
@@ -84,9 +86,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 			return;
 		}
 
-		const tokens = generateTokens(user._id);
 
-		user.refreshTokens.push(tokens.refreshToken);
+		const tokens = generateTokens(user._id);
+		// Hash the refresh token before storing
+		const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, SALT_ROUNDS);
+		user.refreshTokens.push(hashedRefreshToken);
 		await user.save();
 
 		res.json({
@@ -130,8 +134,16 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
 			return;
 		}
 
-		// Check if the refresh token is in the user's list
-		const tokenIndex = user.refreshTokens.indexOf(token);
+
+		// Find the hashed refresh token in the user's list
+		let tokenIndex = -1;
+		for (let i = 0; i < user.refreshTokens.length; i++) {
+			const match = await bcrypt.compare(token, user.refreshTokens[i]);
+			if (match) {
+				tokenIndex = i;
+				break;
+			}
+		}
 		if (tokenIndex === -1) {
 			// Token reuse detected - possible token theft
 			// Invalidate all refresh tokens for security
@@ -146,7 +158,9 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
 
 		const tokens = generateTokens(user._id);
 
-		user.refreshTokens.push(tokens.refreshToken);
+		// Hash the new refresh token before storing
+		const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, SALT_ROUNDS);
+		user.refreshTokens.push(hashedRefreshToken);
 		await user.save();
 
 		res.json({
@@ -175,6 +189,7 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
 			res.json({ message: 'Logged out successfully' });
 			return;
 		}
+
 
 		const user = await User.findById(payload.userId);
 		if (user) {
@@ -233,9 +248,11 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
 			}
 		}
 
-		const tokens = generateTokens(user._id);
 
-		user.refreshTokens.push(tokens.refreshToken);
+		const tokens = generateTokens(user._id);
+		// Hash the refresh token before storing
+		const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, SALT_ROUNDS);
+		user.refreshTokens.push(hashedRefreshToken);
 		await user.save();
 
 		res.redirect(
