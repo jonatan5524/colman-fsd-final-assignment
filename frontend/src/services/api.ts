@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import { navigateTo } from './navigationService';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -87,7 +88,7 @@ api.interceptors.response.use(
 			const refreshToken = getRefreshToken();
 			if (!refreshToken) {
 				clearTokens();
-				window.location.href = '/login';
+				navigateTo('/login');
 				return Promise.reject(error);
 			}
 
@@ -108,7 +109,7 @@ api.interceptors.response.use(
 			} catch (refreshError) {
 				processQueue(refreshError as AxiosError, null);
 				clearTokens();
-				window.location.href = '/login';
+				navigateTo('/login');
 				return Promise.reject(refreshError);
 			} finally {
 				isRefreshing = false;

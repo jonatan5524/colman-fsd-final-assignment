@@ -1,12 +1,20 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
 import AuthCallback from './pages/AuthCallback';
+import { setNavigate } from './services/navigationService';
 
 function App() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setNavigate(navigate);
+  }, [navigate]);
+
   return (
     <AuthProvider>
       <Routes>
