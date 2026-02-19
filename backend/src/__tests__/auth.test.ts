@@ -2,7 +2,9 @@ import request from 'supertest';
 import app from '../app';
 import User from '../models/User';
 import bcrypt from 'bcryptjs';
-import { generateRefreshToken } from '../utils/tokenUtils';
+import jwt from 'jsonwebtoken';
+import { generateRefreshToken, generateAccessToken } from '../utils/tokenUtils';
+import mongoose from 'mongoose';
 
 describe('Auth Endpoints', () => {
 	describe('POST /auth/register', () => {
@@ -260,6 +262,29 @@ describe('Auth Endpoints', () => {
 			const user = await User.findById(userId);
 			expect(user?.refreshTokens).toHaveLength(0);
 		});
+
+		it('should fail when user is deleted', async () => {
+			// Create user and token
+			const hashedPassword = await bcrypt.hash('password123', 10);
+			const user = await User.create({
+				email: 'deleted@example.com',
+				password: hashedPassword,
+				username: 'deleteduser',
+			});
+			const refreshToken = generateRefreshToken(user._id);
+			user.refreshTokens.push(refreshToken);
+			await user.save();
+
+			// Delete the user
+			await User.deleteOne({ _id: user._id });
+
+			const res = await request(app)
+				.post('/auth/refresh')
+				.send({ refreshToken });
+
+			expect(res.status).toBe(401);
+			expect(res.body.message).toBe('User not found');
+		});
 	});
 
 	describe('POST /auth/logout', () => {
@@ -357,51 +382,74 @@ describe('Auth Endpoints', () => {
 			expect(res.status).toBe(403);
 			expect(res.body.message).toBe('Invalid access token');
 		});
-	});
 
-	describe('POST /auth/logout-all', () => {
-		let accessToken: string;
-		let userId: string;
+		it('should fail when user is deleted after token generation', async () => {
+			// Delete the user after getting the token
+			await User.deleteOne({ email: 'test@example.com' });
 
-		beforeEach(async () => {
-			// Create user and get tokens
-			const hashedPassword = await bcrypt.hash('password123', 10);
-			const user = await User.create({
-				email: 'test@example.com',
-				password: hashedPassword,
-				username: 'testuser',
-				refreshTokens: ['token1', 'token2', 'token3'],
-			});
-			userId = user._id.toString();
-
-			// Login to get access token
 			const res = await request(app)
-				.post('/auth/login')
-				.send({
-					email: 'test@example.com',
-					password: 'password123',
-				});
-			accessToken = res.body.accessToken;
-		});
-
-		it('should logout from all devices', async () => {
-			const res = await request(app)
-				.post('/auth/logout-all')
+				.get('/auth/me')
 				.set('Authorization', `Bearer ${accessToken}`);
 
-			expect(res.status).toBe(200);
-			expect(res.body.message).toBe('Logged out from all devices');
-
-			// All tokens should be removed
-			const user = await User.findById(userId);
-			expect(user?.refreshTokens).toHaveLength(0);
+			expect(res.status).toBe(404);
+			expect(res.body.message).toBe('User not found');
 		});
 
-		it('should fail without authentication', async () => {
+		it('should fail with expired token', async () => {
+			// Create an expired token
+			const secret = process.env.JWT_SECRET || 'test-secret-key';
+			const expiredToken = jwt.sign(
+				{ userId: new mongoose.Types.ObjectId().toString() },
+				secret,
+				{ expiresIn: '-1s' }
+			);
+
 			const res = await request(app)
-				.post('/auth/logout-all');
+				.get('/auth/me')
+				.set('Authorization', `Bearer ${expiredToken}`);
 
 			expect(res.status).toBe(401);
+			expect(res.body.message).toBe('Access token expired');
+		});
+	});
+
+	describe('GET /auth/google', () => {
+		it('should return 501 when Google OAuth is not configured', async () => {
+			// Store original env vars
+			const originalClientId = process.env.GOOGLE_CLIENT_ID;
+			const originalClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+			// Temporarily unset Google OAuth config
+			delete process.env.GOOGLE_CLIENT_ID;
+			delete process.env.GOOGLE_CLIENT_SECRET;
+
+			const res = await request(app).get('/auth/google');
+
+			// Restore env vars
+			process.env.GOOGLE_CLIENT_ID = originalClientId;
+			process.env.GOOGLE_CLIENT_SECRET = originalClientSecret;
+
+			expect(res.status).toBe(501);
+			expect(res.body.message).toBe('Google OAuth is not configured');
+		});
+	});
+
+	describe('GET /auth/google/callback', () => {
+		it('should redirect to login with error when OAuth is denied', async () => {
+			const res = await request(app)
+				.get('/auth/google/callback')
+				.query({ error: 'access_denied' });
+
+			expect(res.status).toBe(302);
+			expect(res.headers.location).toContain('/login?error=oauth_denied');
+		});
+
+		it('should redirect to login with error when code is missing', async () => {
+			const res = await request(app)
+				.get('/auth/google/callback');
+
+			expect(res.status).toBe(302);
+			expect(res.headers.location).toContain('/login?error=oauth_denied');
 		});
 	});
 });

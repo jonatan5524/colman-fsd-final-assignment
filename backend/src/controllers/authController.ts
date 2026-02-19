@@ -130,14 +130,19 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
 			return;
 		}
 
-		if (user.refreshTokens.includes(token)) {
+		// Check if the refresh token is in the user's list
+		const tokenIndex = user.refreshTokens.indexOf(token);
+		if (tokenIndex === -1) {
+			// Token reuse detected - possible token theft
+			// Invalidate all refresh tokens for security
 			user.refreshTokens = [];
 			await user.save();
 			res.status(401).json({ message: 'Refresh token has been revoked' });
 			return;
 		}
 
-		user.refreshTokens.splice(user.refreshTokens.indexOf(token), 1);
+		// Remove the used token
+		user.refreshTokens.splice(tokenIndex, 1);
 
 		const tokens = generateTokens(user._id);
 
@@ -203,7 +208,7 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
 			res.redirect(`${frontendUrl}/login?error=oauth_denied`);
 			return;
 		}
-		
+
 		const googleTokens = await exchangeCodeForTokens(code as string);
 
 		const googleUser = await getGoogleUserInfo(googleTokens.access_token);
@@ -227,12 +232,12 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
 				});
 			}
 		}
-		
+
 		const tokens = generateTokens(user._id);
-		
+
 		user.refreshTokens.push(tokens.refreshToken);
 		await user.save();
-		
+
 		res.redirect(
 			`${frontendUrl}/auth/callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`
 		);
