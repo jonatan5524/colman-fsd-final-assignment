@@ -12,7 +12,7 @@ export const authenticateToken = (
   res: Response,
   next: NextFunction,
 ) => {
-  req.userId = (req.headers["x-user-id"] as string) || "mock-user-id-123";
+  req.userId = (req.headers["x-user-id"] as string) || "507f1f77bcf86cd799439011";
   req.user = { id: req.userId };
   next();
 };

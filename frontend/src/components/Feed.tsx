@@ -210,22 +210,22 @@ export const Feed: React.FC<FeedProps> = ({
               <>
                 <div className="post-header">
                   <div className="author-info">
-                    {post.authorId.profilePicUrl && (
+                    {post.authorId && post.authorId.profilePicUrl && (
                       <img
                         src={post.authorId.profilePicUrl}
-                        alt={post.authorId.username}
+                        alt={post.authorId.username || "Author"}
                         className="author-avatar"
                       />
                     )}
                     <div className="author-details">
-                      <h3 className="author-name">{post.authorId.username}</h3>
+                      <h3 className="author-name">{post.authorId ? post.authorId.username : "Unknown Author"}</h3>
                       <span className="post-time">
                         {formatDate(post.createdAt)}
                       </span>
                     </div>
                   </div>
 
-                  {currentUserId === post.authorId._id && (
+                  {post.authorId && currentUserId === post.authorId._id && (
                     <div className="post-actions">
                       <button
                         className="edit-btn"

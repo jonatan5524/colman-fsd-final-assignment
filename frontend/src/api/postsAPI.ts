@@ -42,7 +42,7 @@ const apiClient: AxiosInstance = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  config.headers["x-user-id"] = "mock-user-id-123";
+  config.headers["x-user-id"] = "507f1f77bcf86cd799439011";
 
   return config;
 });

@@ -7,7 +7,7 @@ function App() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [activeTab, setActiveTab] = useState<"feed" | "my-posts">("feed");
 
-  const userId = "mock-user-id-123";
+  const userId = "507f1f77bcf86cd799439011";
   const userName = "Demo User";
 
   const handlePostCreated = useCallback(() => {
