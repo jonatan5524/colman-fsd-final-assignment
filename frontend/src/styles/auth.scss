@@ -1,0 +1,245 @@
+@use '../styles/variables' as *;
+
+.auth-page {
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-image: 
+		linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%),
+		url('../assets/background_image.png');
+	background-size: cover;
+	background-position: center;
+	background-attachment: fixed;
+	padding: $spacing-4;
+	font-family: $font-family;
+}
+
+.auth-card {
+	background: $bg-primary;
+	border-radius: $radius-2xl;
+	box-shadow: $shadow-lg;
+	width: 100%;
+	max-width: 420px;
+	padding: $spacing-10;
+	
+	@media (max-width: $breakpoint-sm) {
+		padding: $spacing-6;
+		margin: $spacing-4;
+	}
+}
+
+.auth-header {
+	text-align: center;
+	margin-bottom: $spacing-8;
+	
+	h1 {
+		font-size: $font-size-3xl;
+		font-weight: 700;
+		color: $text-primary;
+		margin-bottom: $spacing-2;
+	}
+	
+	p {
+		color: $text-secondary;
+		font-size: $font-size-base;
+	}
+}
+
+.auth-form {
+	display: flex;
+	flex-direction: column;
+	gap: $spacing-5;
+}
+
+.form-group {
+	display: flex;
+	flex-direction: column;
+	gap: $spacing-2;
+	
+	label {
+		font-size: $font-size-sm;
+		font-weight: 500;
+		color: $text-primary;
+	}
+	
+	input {
+		padding: $spacing-3 $spacing-4;
+		border: 1px solid $border-color;
+		border-radius: $radius-lg;
+		font-size: $font-size-base;
+		transition: border-color $transition-fast, box-shadow $transition-fast;
+		outline: none;
+		
+		&:focus {
+			border-color: $border-focus;
+			box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+		}
+		
+		&::placeholder {
+			color: $text-muted;
+		}
+		
+		&:disabled {
+			background: $bg-tertiary;
+			cursor: not-allowed;
+		}
+	}
+}
+
+.error-message {
+	background: rgba($error-color, 0.1);
+	border: 1px solid rgba($error-color, 0.2);
+	border-radius: $radius-md;
+	padding: $spacing-3 $spacing-4;
+	color: $error-color;
+	font-size: $font-size-sm;
+	display: flex;
+	align-items: center;
+	gap: $spacing-2;
+	
+	&::before {
+		content: '⚠';
+	}
+}
+
+.submit-btn {
+	background: $primary-color;
+	color: white;
+	border: none;
+	padding: $spacing-3 $spacing-4;
+	border-radius: $radius-lg;
+	font-size: $font-size-base;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background $transition-fast, transform $transition-fast;
+	
+	&:hover:not(:disabled) {
+		background: $primary-hover;
+		transform: translateY(-1px);
+	}
+	
+	&:active:not(:disabled) {
+		transform: translateY(0);
+	}
+	
+	&:disabled {
+		opacity: 0.7;
+		cursor: not-allowed;
+	}
+}
+
+.divider {
+	display: flex;
+	align-items: center;
+	gap: $spacing-4;
+	margin: $spacing-6 0;
+	
+	&::before,
+	&::after {
+		content: '';
+		flex: 1;
+		height: 1px;
+		background: $border-color;
+	}
+	
+	span {
+		color: $text-muted;
+		font-size: $font-size-sm;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+}
+
+.google-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: $spacing-3;
+	width: 100%;
+	padding: $spacing-3 $spacing-4;
+	background: white;
+	border: 1px solid $border-color;
+	border-radius: $radius-lg;
+	font-size: $font-size-base;
+	font-weight: 500;
+	color: $text-primary;
+	cursor: pointer;
+	transition: background $transition-fast, border-color $transition-fast, box-shadow $transition-fast;
+	
+	&:hover:not(:disabled) {
+		background: $bg-secondary;
+		border-color: $google-blue;
+		box-shadow: $shadow-sm;
+	}
+	
+	&:disabled {
+		opacity: 0.7;
+		cursor: not-allowed;
+	}
+	
+	.google-icon {
+		width: 20px;
+		height: 20px;
+	}
+}
+
+.auth-footer {
+	text-align: center;
+	margin-top: $spacing-6;
+	
+	p {
+		color: $text-secondary;
+		font-size: $font-size-sm;
+		
+		a {
+			color: $primary-color;
+			text-decoration: none;
+			font-weight: 500;
+			
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+	}
+}
+
+.loading-spinner {
+	width: 20px;
+	height: 20px;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-top-color: white;
+	border-radius: 50%;
+	animation: spin 0.8s linear infinite;
+	display: inline-block;
+	margin-right: $spacing-2;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+// Loading container for protected routes
+.loading-container {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: $spacing-4;
+	background: $bg-secondary;
+	
+	.loading-spinner {
+		width: 40px;
+		height: 40px;
+		border: 3px solid $border-color;
+		border-top-color: $primary-color;
+	}
+	
+	p {
+		color: $text-secondary;
+		font-size: $font-size-base;
+	}
+}
