@@ -1,31 +1,57 @@
+/// <reference path="./types/express.d.ts" />
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Load environment variables based on NODE_ENV
 const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
 dotenv.config({ path: path.resolve(__dirname, '..', envFile) });
 
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger';
+import authRoutes from './routes/authRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+app.use(cors({
+	origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+	credentials: true,
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.get('/', (req: Request, res: Response) => {
-	res.json({ message: 'Welcome to the Express API' });
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+app.use('/auth', authRoutes);
+
+app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+	console.error('Error:', err.message);
+	res.status(500).json({ message: 'Internal server error' });
 });
 
-app.get('/health', (req: Request, res: Response) => {
-	res.json({ status: 'OK' });
-});
+const startServer = async () => {
+	try {
+		const mongoUri = process.env.MONGODB_URI;
+		if (mongoUri) {
+			await mongoose.connect(mongoUri);
+			console.log('Connected to MongoDB');
+		}
 
-// Start server
-app.listen(PORT, () => {
-	console.log(`Server is running on port ${PORT}`);
-});
+		app.listen(PORT, () => {
+			console.log(`Server is running on port ${PORT}`);
+			console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`);
+		});
+	} catch (error) {
+		console.error('Failed to start server:', error);
+		process.exit(1);
+	}
+};
+
+if (process.env.NODE_ENV !== 'test') {
+	startServer();
+}
 
 export default app;
