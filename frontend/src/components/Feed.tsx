@@ -218,7 +218,11 @@ export const Feed: React.FC<FeedProps> = ({
                       />
                     )}
                     <div className="author-details">
-                      <h3 className="author-name">{post.authorId ? post.authorId.username : "Unknown Author"}</h3>
+                      <h3 className="author-name">
+                        {post.authorId
+                          ? post.authorId.username
+                          : "Unknown Author"}
+                      </h3>
                       <span className="post-time">
                         {formatDate(post.createdAt)}
                       </span>
