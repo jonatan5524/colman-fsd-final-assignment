@@ -10,6 +10,7 @@ dotenv.config({ path: path.resolve(__dirname, "..", envFile) });
 
 import express, { Request, Response } from "express";
 import mongoose from "mongoose";
+import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
 import postsRouter from "./routes/posts";
@@ -21,6 +22,12 @@ const MONGODB_URI =
   process.env.MONGODB_URI || "mongodb://localhost:27017/fsd-posts";
 
 // Middleware
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
