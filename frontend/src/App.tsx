@@ -7,9 +7,8 @@ function App() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [activeTab, setActiveTab] = useState<"feed" | "my-posts">("feed");
 
-  // Get user info from localStorage (set by auth system)
-  const userId = localStorage.getItem("userId");
-  const userName = localStorage.getItem("userName");
+  const userId = "mock-user-id-123";
+  const userName = "Demo User";
 
   const handlePostCreated = useCallback(() => {
     setRefreshTrigger((prev) => prev + 1);
@@ -42,36 +41,26 @@ function App() {
       </header>
 
       <main className="app-main">
-        {userId ? (
-          <>
-            {activeTab === "feed" && (
-              <>
-                <CreatePost
-                  onPostCreated={handlePostCreated}
-                  userName={userName || "Anonymous"}
-                />
-                <Feed key={refreshTrigger} onPostUpdate={handlePostUpdate} />
-              </>
-            )}
-
-            {activeTab === "my-posts" && (
-              <Feed
-                key={refreshTrigger}
-                userId={userId}
-                userPostsOnly={true}
-                onPostUpdate={handlePostUpdate}
+        <>
+          {activeTab === "feed" && (
+            <>
+              <CreatePost
+                onPostCreated={handlePostCreated}
+                userName={userName || "Anonymous"}
               />
-            )}
-          </>
-        ) : (
-          <div className="login-prompt">
-            <h2>Welcome to Social Feed</h2>
-            <p>Please log in to view and create posts</p>
-            <a href="/login" className="login-button">
-              Log In
-            </a>
-          </div>
-        )}
+              <Feed key={refreshTrigger} onPostUpdate={handlePostUpdate} />
+            </>
+          )}
+
+          {activeTab === "my-posts" && (
+            <Feed
+              key={refreshTrigger}
+              userId={userId}
+              userPostsOnly={true}
+              onPostUpdate={handlePostUpdate}
+            />
+          )}
+        </>
       </main>
     </div>
   );
