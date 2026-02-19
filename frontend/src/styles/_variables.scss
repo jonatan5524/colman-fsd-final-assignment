@@ -64,6 +64,17 @@ $breakpoint-md: 768px;
 $breakpoint-lg: 1024px;
 $breakpoint-xl: 1280px;
 
-// Google brand color
+// Google brand colors
 $google-blue: #4285f4;
 $google-blue-hover: #357ae8;
+$google-red: #ea4335;
+$google-yellow: #fbbc05;
+$google-green: #34a853;
+
+// CSS custom properties for use in inline SVGs
+:root {
+	--google-blue: #{$google-blue};
+	--google-red: #{$google-red};
+	--google-yellow: #{$google-yellow};
+	--google-green: #{$google-green};
+}
