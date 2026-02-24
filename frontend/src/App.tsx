@@ -1,73 +1,42 @@
-import { useState, useCallback, useEffect } from "react";
-import CreatePost from "./components/CreatePost";
-import Feed from "./components/Feed";
-import "./App.css";
+import { useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Home from './pages/Home';
+import AuthCallback from './pages/AuthCallback';
+import { setNavigate } from './services/navigationService';
 
 function App() {
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [activeTab, setActiveTab] = useState<"feed" | "my-posts">("feed");
+  const navigate = useNavigate();
 
-  const userId = "507f1f77bcf86cd799439011";
-  const userName = "Demo User";
-
-  // Store userId in localStorage for use in Feed component
   useEffect(() => {
-    localStorage.setItem("userId", userId);
-  }, [userId]);
-
-  const handlePostCreated = useCallback(() => {
-    setRefreshTrigger((prev) => prev + 1);
-  }, []);
-
-  const handlePostUpdate = useCallback(() => {
-    setRefreshTrigger((prev) => prev + 1);
-  }, []);
+    setNavigate(navigate);
+  }, [navigate]);
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <div className="header-content">
-          <h1>📱 Social Feed</h1>
-          <nav className="header-nav">
-            <button
-              className={`nav-button ${activeTab === "feed" ? "active" : ""}`}
-              onClick={() => setActiveTab("feed")}
-            >
-              Feed
-            </button>
-            <button
-              className={`nav-button ${activeTab === "my-posts" ? "active" : ""}`}
-              onClick={() => setActiveTab("my-posts")}
-            >
-              My Posts
-            </button>
-          </nav>
-        </div>
-      </header>
+    <AuthProvider>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
 
-      <main className="app-main">
-        <>
-          {activeTab === "feed" && (
-            <>
-              <CreatePost
-                onPostCreated={handlePostCreated}
-                userName={userName || "Anonymous"}
-              />
-              <Feed key={refreshTrigger} onPostUpdate={handlePostUpdate} />
-            </>
-          )}
+        {/* Protected routes */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
 
-          {activeTab === "my-posts" && (
-            <Feed
-              key={refreshTrigger}
-              userId={userId}
-              userPostsOnly={true}
-              onPostUpdate={handlePostUpdate}
-            />
-          )}
-        </>
-      </main>
-    </div>
+        {/* Catch all - redirect to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AuthProvider>
   );
 }
 
