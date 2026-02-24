@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import CreatePost from "../components/CreatePost";
 import Feed from "../components/Feed";
+import "../styles/home.scss";
 
 const Home = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -23,8 +24,8 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="app">
-      <header className="app-header">
+    <div className="home-page">
+      <header className="home-header">
         <div className="header-content">
           <h1>📱 Social Feed</h1>
           <nav className="header-nav">
@@ -44,8 +45,8 @@ const Home = () => {
         </div>
       </header>
 
-      <main className="app-main">
-        <>
+      <main className="home-main">
+        <div className="feed-wrapper">
           {activeTab === "feed" && (
             <>
               <CreatePost
@@ -64,7 +65,7 @@ const Home = () => {
               onPostUpdate={handlePostUpdate}
             />
           )}
-        </>
+        </div>
       </main>
     </div>
   );

@@ -6,6 +6,7 @@ import { upload } from "../middleware/multer";
 import fs from "fs";
 import path from "path";
 import { authenticateToken } from "../middleware/authMiddleware";
+import { log } from 'console';
 
 /**
  * @swagger

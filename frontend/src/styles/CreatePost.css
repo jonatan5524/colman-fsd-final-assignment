@@ -43,6 +43,7 @@
 
 .post-input {
   width: 100%;
+  box-sizing: border-box;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 12px;
@@ -122,6 +123,7 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
+  color: #333;
   transition: background-color 0.2s;
 
   &:hover {
