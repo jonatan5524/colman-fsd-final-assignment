@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import CreatePost from "./components/CreatePost";
 import Feed from "./components/Feed";
 import "./App.css";
@@ -9,6 +9,11 @@ function App() {
 
   const userId = "507f1f77bcf86cd799439011";
   const userName = "Demo User";
+
+  // Store userId in localStorage for use in Feed component
+  useEffect(() => {
+    localStorage.setItem("userId", userId);
+  }, [userId]);
 
   const handlePostCreated = useCallback(() => {
     setRefreshTrigger((prev) => prev + 1);
