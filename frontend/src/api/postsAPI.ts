@@ -41,12 +41,6 @@ const apiClient: AxiosInstance = axios.create({
   },
 });
 
-apiClient.interceptors.request.use((config) => {
-  config.headers["x-user-id"] = "507f1f77bcf86cd799439011";
-
-  return config;
-});
-
 export const postsAPI = {
   // Create a new post
   createPost: async (data: CreatePostData): Promise<Post> => {
