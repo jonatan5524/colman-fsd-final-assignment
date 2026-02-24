@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import type { Post, FeedResponse } from "../api/postsAPI";
 import { postsAPI } from "../api/postsAPI";
+import PostCard from "./PostCard";
 import "../styles/Feed.css";
 
 interface FeedProps {
@@ -180,105 +181,20 @@ export const Feed: React.FC<FeedProps> = ({
 
       <div className="posts-list">
         {posts.map((post) => (
-          <article key={post._id} className="post-card">
-            {editingPostId === post._id ? (
-              <div className="edit-post-form">
-                <textarea
-                  className="edit-textarea"
-                  value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                  maxLength={5000}
-                />
-                {editImagePreview && (
-                  <img
-                    src={editImagePreview}
-                    alt="Edit preview"
-                    className="edit-preview"
-                  />
-                )}
-                <label className="edit-image-label">
-                  📸 Change Image
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleEditImageSelect}
-                    style={{ display: "none" }}
-                  />
-                </label>
-                <div className="edit-actions">
-                  <button
-                    className="save-btn"
-                    onClick={() => handleSaveEdit(post._id)}
-                  >
-                    Save
-                  </button>
-                  <button className="cancel-btn" onClick={handleCancelEdit}>
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="post-header">
-                  <div className="author-info">
-                    {post.authorId && post.authorId.profilePicUrl && (
-                      <img
-                        src={post.authorId.profilePicUrl}
-                        alt={post.authorId.username || "Author"}
-                        className="author-avatar"
-                      />
-                    )}
-                    <div className="author-details">
-                      <h3 className="author-name">
-                        {post.authorId
-                          ? post.authorId.username
-                          : "Unknown Author"}
-                      </h3>
-                      <span className="post-time">
-                        {formatDate(post.createdAt)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {post.authorId && currentUserId === post.authorId._id && (
-                    <div className="post-actions">
-                      <button
-                        className="edit-btn"
-                        onClick={() => handleEdit(post)}
-                        title="Edit post"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        className="delete-btn"
-                        onClick={() => handleDelete(post._id)}
-                        title="Delete post"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="post-content">
-                  <p className="post-text">{post.content}</p>
-                  {post.imageUrl && (
-                    <img
-                      src={post.imageUrl}
-                      alt="Post"
-                      className="post-image"
-                    />
-                  )}
-                </div>
-
-                <div className="post-footer">
-                  <span className="post-date">
-                    {new Date(post.createdAt).toLocaleString()}
-                  </span>
-                </div>
-              </>
-            )}
-          </article>
+          <PostCard
+            key={post._id}
+            post={post}
+            currentUserId={currentUserId}
+            isEditing={editingPostId === post._id}
+            editText={editText}
+            editImagePreview={editImagePreview}
+            onEdit={handleEdit}
+            onCancelEdit={handleCancelEdit}
+            onSaveEdit={handleSaveEdit}
+            onDelete={handleDelete}
+            onEditTextChange={setEditText}
+            onEditImageSelect={handleEditImageSelect}
+          />
         ))}
       </div>
 
