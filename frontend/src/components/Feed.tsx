@@ -144,10 +144,6 @@ export const Feed: React.FC<FeedProps> = ({
   };
 
   const handleDelete = async (postId: string) => {
-    if (!window.confirm("Are you sure you want to delete this post?")) {
-      return;
-    }
-
     try {
       await postsAPI.deletePost(postId);
       setPosts(posts.filter((p) => p._id !== postId));

@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
 import type { Post } from "../api/postsAPI";
+import ConfirmDialog from "./ConfirmDialog";
 import "../styles/PostCard.css";
 
 interface PostCardProps {
@@ -45,7 +46,17 @@ export const PostCard: React.FC<PostCardProps> = ({
   onEditTextChange,
   onEditImageSelect,
 }) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const isOwner = post.authorId && currentUserId === post.authorId._id;
+
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = () => {
+    setShowDeleteConfirm(false);
+    onDelete(post._id);
+  };
 
   if (isEditing) {
     return (
@@ -116,7 +127,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             </button>
             <button
               className="delete-btn"
-              onClick={() => onDelete(post._id)}
+              onClick={handleDeleteClick}
               title="Delete post"
             >
               🗑️
@@ -137,6 +148,17 @@ export const PostCard: React.FC<PostCardProps> = ({
           {new Date(post.createdAt).toLocaleString()}
         </span>
       </div>
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete Post"
+        message="Are you sure you want to delete this post? This action cannot be undone."
+        cancelText="Cancel"
+        confirmText="Delete"
+        isDangerous={true}
+        onCancel={() => setShowDeleteConfirm(false)}
+        onConfirm={handleConfirmDelete}
+      />
     </article>
   );
 };
