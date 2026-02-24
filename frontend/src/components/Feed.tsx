@@ -18,18 +18,23 @@ export const Feed: React.FC<FeedProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
-  const [skip, setSkip] = useState(0);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [editImage, setEditImage] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
+  const skipRef = useRef(0);
+  const isFetchingRef = useRef(false);
   const limit = 10;
   const currentUserId = localStorage.getItem("userId");
 
   // Fetch posts
   const fetchPosts = useCallback(
     async (skipValue: number) => {
+      if (isFetchingRef.current) return;
+
+      isFetchingRef.current = true;
+      skipRef.current = skipValue;
       setLoading(true);
       setError(null);
       try {
@@ -52,6 +57,7 @@ export const Feed: React.FC<FeedProps> = ({
         setError(err instanceof Error ? err.message : "Failed to load posts");
       } finally {
         setLoading(false);
+        isFetchingRef.current = false;
       }
     },
     [userId, userPostsOnly, limit],
@@ -66,9 +72,13 @@ export const Feed: React.FC<FeedProps> = ({
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading) {
-          const nextSkip = skip + limit;
-          setSkip(nextSkip);
+        if (
+          entries[0].isIntersecting &&
+          hasMore &&
+          !loading &&
+          !isFetchingRef.current
+        ) {
+          const nextSkip = skipRef.current + limit;
           fetchPosts(nextSkip);
         }
       },
@@ -80,7 +90,7 @@ export const Feed: React.FC<FeedProps> = ({
     }
 
     return () => observer.disconnect();
-  }, [hasMore, loading, skip, limit, fetchPosts]);
+  }, [hasMore, loading, limit, fetchPosts]);
 
   const handleEdit = (post: Post) => {
     setEditingPostId(post._id);
@@ -121,7 +131,8 @@ export const Feed: React.FC<FeedProps> = ({
       setEditText("");
       setEditImage(null);
       setEditImagePreview(null);
-      setSkip(0);
+      skipRef.current = 0;
+      isFetchingRef.current = false;
       await fetchPosts(0);
       if (onPostUpdate) {
         onPostUpdate();
