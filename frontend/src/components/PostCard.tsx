@@ -74,10 +74,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             />
           </label>
           <div className="edit-actions">
-            <button
-              className="save-btn"
-              onClick={() => onSaveEdit(post._id)}
-            >
+            <button className="save-btn" onClick={() => onSaveEdit(post._id)}>
               Save
             </button>
             <button className="cancel-btn" onClick={onCancelEdit}>
@@ -104,9 +101,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             <h3 className="author-name">
               {post.authorId ? post.authorId.username : "Unknown Author"}
             </h3>
-            <span className="post-time">
-              {formatDate(post.createdAt)}
-            </span>
+            <span className="post-time">{formatDate(post.createdAt)}</span>
           </div>
         </div>
 
@@ -133,11 +128,7 @@ export const PostCard: React.FC<PostCardProps> = ({
       <div className="post-content">
         <p className="post-text">{post.content}</p>
         {post.imageUrl && (
-          <img
-            src={post.imageUrl}
-            alt="Post"
-            className="post-image"
-          />
+          <img src={post.imageUrl} alt="Post" className="post-image" />
         )}
       </div>
 
