@@ -6,13 +6,12 @@ import "../styles/Feed.css";
 
 interface FeedProps {
   userId?: string;
-  userPostsOnly?: boolean;
+  myPostsOnly?: boolean;
   onPostUpdate?: () => void;
 }
 
 export const Feed: React.FC<FeedProps> = ({
-  userId,
-  userPostsOnly = false,
+  myPostsOnly = false,
   onPostUpdate,
 }) => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -41,8 +40,8 @@ export const Feed: React.FC<FeedProps> = ({
       try {
         let data: FeedResponse;
 
-        if (userPostsOnly && userId) {
-          data = await postsService.getPostsByUser(userId, limit, skipValue);
+        if (myPostsOnly) {
+          data = await postsService.getMyPosts(limit, skipValue);
         } else {
           data = await postsService.getFeed(limit, skipValue);
         }
@@ -61,7 +60,7 @@ export const Feed: React.FC<FeedProps> = ({
         isFetchingRef.current = false;
       }
     },
-    [userId, userPostsOnly, limit],
+    [myPostsOnly, limit],
   );
 
   // Initial load
@@ -153,22 +152,6 @@ export const Feed: React.FC<FeedProps> = ({
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete post");
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-
-    if (minutes < 1) return "just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 7) return `${days}d ago`;
-
-    return date.toLocaleDateString();
   };
 
   return (

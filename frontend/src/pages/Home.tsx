@@ -60,8 +60,7 @@ const Home = () => {
           {activeTab === "my-posts" && (
             <Feed
               key={refreshTrigger}
-              userId={userId}
-              userPostsOnly={true}
+              myPostsOnly={true}
               onPostUpdate={handlePostUpdate}
             />
           )}

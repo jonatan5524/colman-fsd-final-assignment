@@ -249,21 +249,17 @@ router.get("/", authenticateToken, async (req: Request, res: Response) => {
 });
 
 /**
- * GET /api/posts/user/:userId
- * Get all posts by a specific user
+ * GET /api/posts/me/posts
+ * Get all posts by the current user
  */
 router.get(
-  "/user/:userId",
+  "/me/posts",
   authenticateToken,
   async (req: Request, res: Response) => {
     try {
-      const userId = Array.isArray(req.params.userId)
-        ? req.params.userId[0]
-        : req.params.userId;
-
-      // Validate ObjectId
-      if (!Types.ObjectId.isValid(userId)) {
-        return res.status(400).json({ error: "Invalid user ID" });
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
       }
 
       const limit = Math.min(parseInt(req.query.limit as string) || 10, 100);
@@ -293,34 +289,6 @@ router.get(
     }
   },
 );
-
-/**
- * GET /api/posts/:id
- * Get a single post by ID
- */
-router.get("/:id", authenticateToken, async (req: Request, res: Response) => {
-  try {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-
-    if (!Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: "Invalid post ID" });
-    }
-
-    const post = await Post.findById(id).populate(
-      "authorId",
-      "username profilePicUrl",
-    );
-
-    if (!post) {
-      return res.status(404).json({ error: "Post not found" });
-    }
-
-    res.json(post);
-  } catch (error) {
-    console.error("Error fetching post:", error);
-    res.status(500).json({ error: "Failed to fetch post" });
-  }
-});
 
 /**
  * PUT /api/posts/:id

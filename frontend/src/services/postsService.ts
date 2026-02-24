@@ -63,6 +63,14 @@ export const postsService = {
 		return response.data;
 	},
 
+	// Get my posts
+	async getMyPosts(limit: number = 10, skip: number = 0): Promise<FeedResponse> {
+		const response = await api.get<FeedResponse>('/posts/me/posts', {
+			params: { limit, skip },
+		});
+		return response.data;
+	},
+
 	// Get single post
 	async getPost(postId: string): Promise<Post> {
 		const response = await api.get<Post>(`/posts/${postId}`);
