@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import type { Post, FeedResponse } from "../api/postsAPI";
-import { postsAPI } from "../api/postsAPI";
+import type { Post, FeedResponse } from "../services/postsService";
+import { postsService } from "../services/postsService";
 import PostCard from "./PostCard";
 import "../styles/Feed.css";
 
@@ -42,9 +42,9 @@ export const Feed: React.FC<FeedProps> = ({
         let data: FeedResponse;
 
         if (userPostsOnly && userId) {
-          data = await postsAPI.getPostsByUser(userId, limit, skipValue);
+          data = await postsService.getPostsByUser(userId, limit, skipValue);
         } else {
-          data = await postsAPI.getFeed(limit, skipValue);
+          data = await postsService.getFeed(limit, skipValue);
         }
 
         if (skipValue === 0) {
@@ -124,7 +124,7 @@ export const Feed: React.FC<FeedProps> = ({
 
   const handleSaveEdit = async (postId: string) => {
     try {
-      await postsAPI.updatePost(postId, {
+      await postsService.updatePost(postId, {
         content: editText,
         image: editImage || undefined,
       });
@@ -145,7 +145,7 @@ export const Feed: React.FC<FeedProps> = ({
 
   const handleDelete = async (postId: string) => {
     try {
-      await postsAPI.deletePost(postId);
+      await postsService.deletePost(postId);
       setPosts(posts.filter((p) => p._id !== postId));
       if (onPostUpdate) {
         onPostUpdate();

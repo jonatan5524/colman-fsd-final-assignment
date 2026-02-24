@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import type { Post } from "../api/postsAPI";
+import type { Post } from "../services/postsService";
 import ConfirmDialog from "./ConfirmDialog";
 import "../styles/PostCard.css";
 

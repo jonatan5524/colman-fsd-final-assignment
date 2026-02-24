@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
-import type { CreatePostData } from "../api/postsAPI";
-import { postsAPI } from "../api/postsAPI";
+import type { CreatePostData } from "../services/postsService";
+import { postsService } from "../services/postsService";
 import "../styles/CreatePost.css";
 
 interface CreatePostProps {
@@ -77,7 +77,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
           data.image = image;
         }
 
-        await postsAPI.createPost(data);
+        await postsService.createPost(data);
         setContent("");
         setImage(null);
         setImagePreview(null);

@@ -40,7 +40,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/auth", authRoutes);
 
-app.use("/api/posts", postsRouter);
+app.use("/posts", postsRouter);
 
 app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
   console.error("Error:", err.message);
