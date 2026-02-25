@@ -54,7 +54,7 @@ export const authService = {
 	},
 
 	async getMe(): Promise<User> {
-		const response = await api.get<User>('/auth/me');
+		const response = await api.get<User>('/profile/');
 		return response.data;
 	},
 
@@ -63,7 +63,7 @@ export const authService = {
 	},
 
 	async updateProfile(userId: string, formData: FormData): Promise<User> {
-		const response = await api.put<User>(`/auth/users/${userId}`, formData, {
+		const response = await api.put<User>(`/profile/users/${userId}`, formData, {
 			headers: {
 				'Content-Type': 'multipart/form-data',
 			},

@@ -317,7 +317,7 @@ describe('Auth Endpoints', () => {
 		});
 	});
 
-	describe('GET /auth/me', () => {
+	describe('GET /profile/', () => {
 		let accessToken: string;
 
 		beforeEach(async () => {
@@ -334,7 +334,7 @@ describe('Auth Endpoints', () => {
 
 		it('should return user profile with valid token', async () => {
 			const res = await request(app)
-				.get('/auth/me')
+				.get('/profile/')
 				.set('Authorization', `Bearer ${accessToken}`);
 
 			expect(res.status).toBe(200);
@@ -346,7 +346,7 @@ describe('Auth Endpoints', () => {
 
 		it('should fail without authorization header', async () => {
 			const res = await request(app)
-				.get('/auth/me');
+				.get('/profile/');
 
 			expect(res.status).toBe(401);
 			expect(res.body.message).toBe('Access token required');
@@ -354,7 +354,7 @@ describe('Auth Endpoints', () => {
 
 		it('should fail with invalid token', async () => {
 			const res = await request(app)
-				.get('/auth/me')
+				.get('/profile/')
 				.set('Authorization', 'Bearer invalid-token');
 
 			expect(res.status).toBe(403);
@@ -366,7 +366,7 @@ describe('Auth Endpoints', () => {
 			await User.deleteOne({ email: 'test@example.com' });
 
 			const res = await request(app)
-				.get('/auth/me')
+				.get('/profile/')
 				.set('Authorization', `Bearer ${accessToken}`);
 
 			expect(res.status).toBe(404);
@@ -383,7 +383,7 @@ describe('Auth Endpoints', () => {
 			);
 
 			const res = await request(app)
-				.get('/auth/me')
+				.get('/profile/')
 				.set('Authorization', `Bearer ${expiredToken}`);
 
 			expect(res.status).toBe(401);
@@ -431,7 +431,7 @@ describe('Auth Endpoints', () => {
 		});
 	});
 
-	describe('PUT /auth/users/:userId', () => {
+	describe('PUT /profile/users/:userId', () => {
 		let accessToken: string;
 		let userId: string;
 
@@ -449,7 +449,7 @@ describe('Auth Endpoints', () => {
 
 		it('should update user profile with new username', async () => {
 			const res = await request(app)
-				.put(`/auth/users/${userId}`)
+				.put(`/profile/users/${userId}`)
 				.set('Authorization', `Bearer ${accessToken}`)
 				.send({ username: 'newusername' });
 
@@ -459,7 +459,7 @@ describe('Auth Endpoints', () => {
 
 		it('should update user profile with new profile picture', async () => {
 			const res = await request(app)
-				.put(`/auth/users/${userId}`)
+				.put(`/profile/users/${userId}`)
 				.set('Authorization', `Bearer ${accessToken}`)
 				.attach('file', 'src/__tests__/test-image.png');
 
@@ -478,7 +478,7 @@ describe('Auth Endpoints', () => {
 			const otherUserId = otherUserRes.body.user._id;
 
 			const res = await request(app)
-				.put(`/auth/users/${otherUserId}`)
+				.put(`/profile/users/${otherUserId}`)
 				.set('Authorization', `Bearer ${accessToken}`)
 				.send({ username: 'newusername' });
 
@@ -488,7 +488,7 @@ describe('Auth Endpoints', () => {
 		it('should return 404 if user not found', async () => {
 			const nonExistentId = new mongoose.Types.ObjectId();
 			const res = await request(app)
-				.put(`/auth/users/${nonExistentId}`)
+				.put(`/profile/users/${nonExistentId}`)
 				.set('Authorization', `Bearer ${accessToken}`)
 				.send({ username: 'newusername' });
 
