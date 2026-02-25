@@ -40,7 +40,7 @@ describe("Posts API", () => {
         }),
       };
 
-      (PostModel.default as jest.Mock).mockImplementation(() => mockPost);
+      (PostModel.default as unknown as jest.Mock).mockImplementation(() => mockPost);
       (PostModel.default.findById as jest.Mock) = jest.fn().mockReturnValue({
         populate: jest.fn().mockResolvedValue({
           _id: mockPost._id,
