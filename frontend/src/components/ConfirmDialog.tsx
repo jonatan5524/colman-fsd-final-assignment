@@ -1,6 +1,6 @@
 import React from "react";
 import { createPortal } from "react-dom";
-import "../styles/ConfirmDialog.css";
+import "../styles/ConfirmDialog.scss";
 
 interface ConfirmDialogProps {
   isOpen: boolean;

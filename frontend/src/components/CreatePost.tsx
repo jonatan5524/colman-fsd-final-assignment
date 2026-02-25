@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import type { CreatePostData } from "../services/postsService";
 import { postsService } from "../services/postsService";
-import "../styles/CreatePost.css";
+import "../styles/CreatePost.scss";
 
 interface CreatePostProps {
   onPostCreated?: () => void;

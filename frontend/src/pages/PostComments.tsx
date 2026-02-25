@@ -7,7 +7,7 @@ import commentsService from "../services/commentsService";
 import { useAuth } from "../hooks/useAuth";
 import ConfirmDialog from "../components/ConfirmDialog";
 import "../styles/home.scss";
-import "../styles/PostComments.css";
+import "../styles/PostComments.scss";
 
 const PostComments: React.FC = () => {
   const { postId } = useParams<{ postId: string }>();

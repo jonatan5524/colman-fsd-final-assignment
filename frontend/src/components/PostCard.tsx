@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Post } from "../services/postsService";
 import ConfirmDialog from "./ConfirmDialog";
-import "../styles/PostCard.css";
+import "../styles/PostCard.scss";
 
 interface PostCardProps {
   post: Post;
