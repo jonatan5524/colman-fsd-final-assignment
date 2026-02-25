@@ -15,6 +15,10 @@ const ProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editUsername, setEditUsername] = useState('');
+  const [editImage, setEditImage] = useState<File | null>(null);
+  const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -32,6 +36,42 @@ const ProfilePage: React.FC = () => {
     fetchProfile();
   }, []);
 
+  const handleEditClick = () => {
+    if (profile) {
+      setEditUsername(profile.username);
+      setEditImagePreview(profile.profilePicUrl || profile.avatarUrl || '/default-avatar.png');
+      setIsEditing(true);
+    }
+  };
+
+  const handleCancelClick = () => {
+    setIsEditing(false);
+    setEditUsername('');
+    setEditImage(null);
+    setEditImagePreview(null);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setEditImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveClick = async () => {
+    // TODO: Implement API call to update profile
+    if (profile) {
+      // Optimistic update for UI demonstration
+      setProfile({ ...profile, username: editUsername, profilePicUrl: editImagePreview || profile.profilePicUrl });
+    }
+    setIsEditing(false);
+  };
+
   if (loading) {
     return <div className="profile-container"><div className="loading-state">Loading profile...</div></div>;
   }
@@ -43,17 +83,54 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="profile-container">
       <div className="profile-card">
-        <div className="profile-header">
-          <img 
-            src={profile?.profilePicUrl || profile?.avatarUrl || '/default-avatar.png'} 
-            alt={`${profile?.username}'s avatar`} 
-            className="profile-avatar-large" 
-          />
-          <h2 className="profile-username">{profile?.username}</h2>
-        </div>
-        <div className="profile-details">
-          <p className="profile-email">{profile?.email}</p>
-        </div>
+        {isEditing ? (
+          <div className="profile-edit-mode">
+            <div className="profile-header">
+              <div className="profile-image-container">
+                <img 
+                  src={editImagePreview || '/default-avatar.png'} 
+                  alt="Profile Preview" 
+                  className="profile-avatar-large" 
+                />
+                <label className="image-upload-label" style={{ marginTop: '10px', display: 'block', cursor: 'pointer' }}>
+                  📸 Change Photo
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleImageChange} 
+                    style={{ display: 'none' }} 
+                  />
+                </label>
+              </div>
+              <input 
+                type="text" 
+                value={editUsername} 
+                onChange={(e) => setEditUsername(e.target.value)}
+                className="edit-username-input"
+                style={{ marginTop: '10px', padding: '5px', fontSize: '1.2rem' }}
+              />
+            </div>
+            <div className="profile-actions" style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button onClick={handleSaveClick} className="save-btn">Save</button>
+              <button onClick={handleCancelClick} className="cancel-btn">Cancel</button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="profile-header">
+              <img 
+                src={profile?.profilePicUrl || profile?.avatarUrl || '/default-avatar.png'} 
+                alt={`${profile?.username}'s avatar`} 
+                className="profile-avatar-large" 
+              />
+              <h2 className="profile-username">{profile?.username}</h2>
+            </div>
+            <div className="profile-details">
+              <p className="profile-email">{profile?.email}</p>
+            </div>
+            <button onClick={handleEditClick} className="profile-edit-btn" style={{ marginTop: '15px', padding: '8px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Edit Profile</button>
+          </>
+        )}
       </div>
 
       <div className="profile-posts-section">
