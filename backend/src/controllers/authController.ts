@@ -33,6 +33,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 			email,
 			password: hashedPassword,
 			username,
+			profilePicUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+				username,
+			)}&background=random`,
 		});
 
 
@@ -234,8 +237,12 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
 			user = await User.findOne({ email: googleUser.email });
 			if (user) {
 				user.googleId = googleUser.id;
-				if (!user.profilePicUrl && googleUser.picture) {
-					user.profilePicUrl = googleUser.picture;
+				if (!user.profilePicUrl) {
+					user.profilePicUrl =
+						googleUser.picture ||
+						`https://ui-avatars.com/api/?name=${encodeURIComponent(
+							user.username,
+						)}&background=random`;
 				}
 				await user.save();
 			} else {
@@ -243,7 +250,11 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
 					googleId: googleUser.id,
 					email: googleUser.email,
 					username: googleUser.name || `user_${googleUser.id}`,
-					profilePicUrl: googleUser.picture,
+					profilePicUrl:
+						googleUser.picture ||
+						`https://ui-avatars.com/api/?name=${encodeURIComponent(
+							googleUser.name || googleUser.email,
+						)}&background=random`,
 				});
 			}
 		}
