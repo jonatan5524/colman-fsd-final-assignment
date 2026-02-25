@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import authService from '../services/authService';
+import Feed from './Feed';
 import '../styles/ProfilePage.scss';
 
 interface UserProfile {
@@ -53,6 +54,16 @@ const ProfilePage: React.FC = () => {
         <div className="profile-details">
           <p className="profile-email">{profile?.email}</p>
         </div>
+      </div>
+
+      <div className="profile-posts-section">
+        <h3>My Posts</h3>
+        {profile && (
+          <Feed 
+            userId={profile._id} 
+            myPostsOnly={true} 
+          />
+        )}
       </div>
     </div>
   );
