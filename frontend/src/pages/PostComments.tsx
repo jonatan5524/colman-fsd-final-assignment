@@ -5,6 +5,7 @@ import postsService from "../services/postsService";
 import type { Comment } from "../services/commentsService";
 import commentsService from "../services/commentsService";
 import { useAuth } from "../hooks/useAuth";
+import ConfirmDialog from "../components/ConfirmDialog";
 import "../styles/home.scss";
 import "../styles/PostComments.css";
 
@@ -20,6 +21,7 @@ const PostComments: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState<Comment | null>(null);
 
   const loadData = useCallback(async () => {
     if (!postId) {
@@ -72,13 +74,25 @@ const PostComments: React.FC = () => {
     }
   };
 
-  const handleDeleteComment = async (commentId: string) => {
+  const handleRequestDeleteComment = (comment: Comment) => {
+    setCommentToDelete(comment);
+  };
+
+  const handleConfirmDeleteComment = async () => {
+    if (!commentToDelete) return;
+
     try {
-      await commentsService.deleteComment(commentId);
-      setComments((prev) => prev.filter((c) => c._id !== commentId));
+      await commentsService.deleteComment(commentToDelete._id);
+      setComments((prev) => prev.filter((c) => c._id !== commentToDelete._id));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete comment");
+    } finally {
+      setCommentToDelete(null);
     }
+  };
+
+  const handleCancelDeleteComment = () => {
+    setCommentToDelete(null);
   };
 
   const fromTab =
@@ -390,9 +404,7 @@ const PostComments: React.FC = () => {
                         <button
                           type="button"
                           className="delete-comment-button"
-                          onClick={() =>
-                            handleDeleteComment(comment._id)
-                          }
+                          onClick={() => handleRequestDeleteComment(comment)}
                         >
                           Delete
                         </button>
@@ -403,6 +415,17 @@ const PostComments: React.FC = () => {
                 ))}
               </ul>
             </section>
+
+            <ConfirmDialog
+              isOpen={commentToDelete !== null}
+              title="Delete Comment"
+              message="Are you sure you want to delete this comment? This action cannot be undone."
+              cancelText="Cancel"
+              confirmText="Delete"
+              isDangerous={true}
+              onCancel={handleCancelDeleteComment}
+              onConfirm={handleConfirmDeleteComment}
+            />
           </div>
         </div>
       </main>
