@@ -16,7 +16,7 @@ interface PostCardProps {
   onDelete: (postId: string) => void;
   onEditTextChange: (text: string) => void;
   onEditImageSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  sourceTab: "feed" | "my-posts";
+  sourceTab: "feed" | "profile";
 }
 
 const formatDate = (dateString: string) => {
