@@ -1,19 +1,12 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import CreatePost from "../components/CreatePost";
 import Feed from "../components/Feed";
 import "../styles/home.scss";
+import type { User } from "../services/authService";
 
-const Home = () => {
+const Home = ({ user }: { user: User }) => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [activeTab, setActiveTab] = useState<"feed" | "my-posts">("feed");
-
-  const userId = "507f1f77bcf86cd799439011";
-  const userName = "Demo User";
-
-  // Store userId in localStorage for use in Feed component
-  useEffect(() => {
-    localStorage.setItem("userId", userId);
-  }, [userId]);
 
   const handlePostCreated = useCallback(() => {
     setRefreshTrigger((prev) => prev + 1);
@@ -36,7 +29,9 @@ const Home = () => {
               Feed
             </button>
             <button
-              className={`nav-button ${activeTab === "my-posts" ? "active" : ""}`}
+              className={`nav-button ${
+                activeTab === "my-posts" ? "active" : ""
+              }`}
               onClick={() => setActiveTab("my-posts")}
             >
               My Posts
@@ -51,9 +46,13 @@ const Home = () => {
             <>
               <CreatePost
                 onPostCreated={handlePostCreated}
-                userName={userName || "Anonymous"}
+                userName={user.username || "Anonymous"}
               />
-              <Feed key={refreshTrigger} onPostUpdate={handlePostUpdate} />
+              <Feed
+                key={refreshTrigger}
+                onPostUpdate={handlePostUpdate}
+                userId={user._id}
+              />
             </>
           )}
 
@@ -62,6 +61,7 @@ const Home = () => {
               key={refreshTrigger}
               myPostsOnly={true}
               onPostUpdate={handlePostUpdate}
+              userId={user._id}
             />
           )}
         </div>
@@ -71,3 +71,4 @@ const Home = () => {
 };
 
 export default Home;
+

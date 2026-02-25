@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import type { Post } from "../services/postsService";
 import ConfirmDialog from "./ConfirmDialog";
 import "../styles/PostCard.css";
@@ -75,7 +75,7 @@ export const PostCard: React.FC<PostCardProps> = ({
               className="edit-preview"
             />
           )}
-          <label className="edit-image-label">
+          <label className="image-upload-label">
             📸 Change Image
             <input
               type="file"

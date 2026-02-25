@@ -152,6 +152,7 @@ router.get(
  */
 router.put(
   "/:id",
+  authenticateToken,
   upload.single("image"),
   postsController.updatePost
 );

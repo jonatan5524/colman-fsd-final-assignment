@@ -5,12 +5,13 @@ import PostCard from "./PostCard";
 import "../styles/Feed.css";
 
 interface FeedProps {
-  userId?: string;
+  userId: string;
   myPostsOnly?: boolean;
   onPostUpdate?: () => void;
 }
 
 export const Feed: React.FC<FeedProps> = ({
+  userId,
   myPostsOnly = false,
   onPostUpdate,
 }) => {
@@ -26,7 +27,6 @@ export const Feed: React.FC<FeedProps> = ({
   const skipRef = useRef(0);
   const isFetchingRef = useRef(false);
   const limit = 10;
-  const currentUserId = localStorage.getItem("userId");
 
   // Fetch posts
   const fetchPosts = useCallback(
@@ -163,7 +163,7 @@ export const Feed: React.FC<FeedProps> = ({
           <PostCard
             key={post._id}
             post={post}
-            currentUserId={currentUserId}
+            currentUserId={userId}
             isEditing={editingPostId === post._id}
             editText={editText}
             editImagePreview={editImagePreview}

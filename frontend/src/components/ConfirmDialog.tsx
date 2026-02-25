@@ -1,4 +1,5 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import "../styles/ConfirmDialog.css";
 
 interface ConfirmDialogProps {
@@ -24,7 +25,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="confirm-dialog-overlay" onClick={onCancel}>
       <div
         className="confirm-dialog-content"
@@ -46,7 +47,8 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
