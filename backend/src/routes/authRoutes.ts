@@ -7,8 +7,6 @@ import {
 	googleAuth,
 	googleCallback,
 } from '../controllers/authController';
-// Removed getMe and updateProfile imports
-// Removed authenticateToken and upload imports as they are no longer used in this file
 
 const router = Router();
 
