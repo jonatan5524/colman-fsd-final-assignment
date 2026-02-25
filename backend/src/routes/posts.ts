@@ -3,6 +3,7 @@ import { Router } from "express";
 import { upload } from "../middleware/multer";
 import { authenticateToken } from "../middleware/authMiddleware";
 import * as postsController from "../controllers/postsController";
+import * as commentsController from "../controllers/commentsController";
 
 /**
  * @swagger
@@ -50,6 +51,78 @@ router.post(
 
 /**
  * @swagger
+ * /api/posts/{postId}/comments:
+ *   post:
+ *     summary: Create a new comment on a post
+ *     tags: [Comments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - content
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 example: "This is my comment"
+ *     responses:
+ *       201:
+ *         description: Comment created successfully
+ *       400:
+ *         description: Invalid input or post ID
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Post not found
+ */
+router.post(
+  "/:postId/comments",
+  authenticateToken,
+  commentsController.createComment,
+);
+
+/**
+ * @swagger
+ * /api/posts/{postId}/comments:
+ *   get:
+ *     summary: Get all comments for a post
+ *     tags: [Comments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of comments
+ *       400:
+ *         description: Invalid post ID
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Post not found
+ */
+router.get(
+  "/:postId/comments",
+  authenticateToken,
+  commentsController.getCommentsByPost,
+);
+
+/**
+ * @swagger
  * /api/posts:
  *   get:
  *     summary: Get paginated feed of posts
@@ -77,6 +150,36 @@ router.get(
   "/",
   authenticateToken,
   postsController.getFeed
+);
+
+/**
+ * @swagger
+ * /api/posts/{id}:
+ *   get:
+ *     summary: Get a single post by ID
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Post data
+ *       400:
+ *         description: Invalid post ID
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Post not found
+ */
+router.get(
+  "/:id",
+  authenticateToken,
+  postsController.getPostById,
 );
 
 /**
