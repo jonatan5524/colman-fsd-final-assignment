@@ -9,6 +9,7 @@ import mongoose from "mongoose";
 import { swaggerSpec } from "./config/swagger";
 import authRoutes from "./routes/authRoutes";
 import postsRouter from "./routes/posts";
+import commentsRouter from "./routes/comments";
 
 const envFile =
   process.env.NODE_ENV === "production"
@@ -41,6 +42,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/auth", authRoutes);
 
 app.use("/posts", postsRouter);
+app.use("/comments", commentsRouter);
 
 app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
   console.error("Error:", err.message);
