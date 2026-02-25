@@ -95,11 +95,11 @@ const PostComments: React.FC = () => {
   };
 
   const fromTab =
-    (location.state as { fromTab?: "feed" | "my-posts" } | null)?.fromTab;
+    (location.state as { fromTab?: "feed" | "profile" } | null)?.fromTab;
 
   const handleBack = () => {
-    if (fromTab === "my-posts") {
-      navigate("/", { state: { initialTab: "my-posts" } });
+    if (fromTab === "profile") {
+      navigate("/", { state: { initialTab: "profile" } });
     } else {
       navigate("/", { state: { initialTab: "feed" } });
     }
@@ -113,7 +113,7 @@ const PostComments: React.FC = () => {
     return (
       <div className="post-comments-page">
         <button type="button" className="back-button" onClick={handleBack}>
-          {fromTab === "my-posts" ? "← Back to my posts" : "← Back to feed"}
+          {fromTab === "profile" ? "← Back to profile" : "← Back to feed"}
         </button>
         <div className="error-message">{error}</div>
       </div>
@@ -124,7 +124,7 @@ const PostComments: React.FC = () => {
     return (
       <div className="post-comments-page">
         <button type="button" className="back-button" onClick={handleBack}>
-          {fromTab === "my-posts" ? "← Back to my posts" : "← Back to feed"}
+          {fromTab === "profile" ? "← Back to profile" : "← Back to feed"}
         </button>
         <div className="error-message">Post not found</div>
       </div>
@@ -134,7 +134,7 @@ const PostComments: React.FC = () => {
   return (
     <div className="post-comments-page">
       <button type="button" className="back-button" onClick={handleBack}>
-        {fromTab === "my-posts" ? "← Back to my posts" : "← Back to feed"}
+        {fromTab === "profile" ? "← Back to profile" : "← Back to feed"}
       </button>
 
       {error && <div className="error-message">{error}</div>}

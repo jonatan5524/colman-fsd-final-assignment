@@ -8,17 +8,17 @@ const AppLayout = () => {
   const { logout } = useAuth();
 
   const locationState = location.state as {
-    initialTab?: "feed" | "my-posts";
-    fromTab?: "feed" | "my-posts";
+    initialTab?: "feed" | "profile";
+    fromTab?: "feed" | "profile";
   } | null;
 
   const isOnCommentsPage = location.pathname.includes("/comments");
 
-  const getActiveTab = (): "feed" | "my-posts" => {
+  const getActiveTab = (): "feed" | "profile" => {
     if (isOnCommentsPage) {
-      return locationState?.fromTab === "my-posts" ? "my-posts" : "feed";
+      return locationState?.fromTab === "profile" ? "profile" : "feed";
     }
-    return locationState?.initialTab === "my-posts" ? "my-posts" : "feed";
+    return locationState?.initialTab === "profile" ? "profile" : "feed";
   };
 
   const activeTab = getActiveTab();
@@ -38,12 +38,12 @@ const AppLayout = () => {
               Feed
             </button>
             <button
-              className={`nav-button ${activeTab === "my-posts" ? "active" : ""}`}
+              className={`nav-button ${activeTab === "profile" ? "active" : ""}`}
               onClick={() =>
-                navigate("/", { state: { initialTab: "my-posts" } })
+                navigate("/", { state: { initialTab: "profile" } })
               }
             >
-              My Posts
+              Profile
             </button>
             <button
               className="nav-button logout-button"
