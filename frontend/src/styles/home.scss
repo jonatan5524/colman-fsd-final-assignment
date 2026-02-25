@@ -64,6 +64,17 @@
 		border-color: $primary-color;
 		color: white;
 	}
+
+	&.logout-button {
+		margin-left: auto;
+		border-color: $error-color;
+		color: $error-color;
+
+		&:hover {
+			background: rgba($error-color, 0.1);
+			color: $error-color;
+		}
+	}
 }
 
 .home-main {

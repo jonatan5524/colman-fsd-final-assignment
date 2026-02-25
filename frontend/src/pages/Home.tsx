@@ -3,10 +3,12 @@ import CreatePost from "../components/CreatePost";
 import Feed from "../components/Feed";
 import "../styles/home.scss";
 import type { User } from "../services/authService";
+import { useAuth } from "../hooks/useAuth";
 
 const Home = ({ user }: { user: User }) => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [activeTab, setActiveTab] = useState<"feed" | "my-posts">("feed");
+  const { logout } = useAuth();
 
   const handlePostCreated = useCallback(() => {
     setRefreshTrigger((prev) => prev + 1);
@@ -35,6 +37,9 @@ const Home = ({ user }: { user: User }) => {
               onClick={() => setActiveTab("my-posts")}
             >
               My Posts
+            </button>
+            <button className="nav-button logout-button" onClick={logout}>
+              Logout
             </button>
           </nav>
         </div>
@@ -71,4 +76,3 @@ const Home = ({ user }: { user: User }) => {
 };
 
 export default Home;
-
