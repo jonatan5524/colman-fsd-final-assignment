@@ -33,6 +33,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 			email,
 			password: hashedPassword,
 			username,
+			profilePicUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+				username,
+			)}&background=random`,
 		});
 
 
@@ -234,8 +237,12 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
 			user = await User.findOne({ email: googleUser.email });
 			if (user) {
 				user.googleId = googleUser.id;
-				if (!user.profilePicUrl && googleUser.picture) {
-					user.profilePicUrl = googleUser.picture;
+				if (!user.profilePicUrl) {
+					user.profilePicUrl =
+						googleUser.picture ||
+						`https://ui-avatars.com/api/?name=${encodeURIComponent(
+							user.username,
+						)}&background=random`;
 				}
 				await user.save();
 			} else {
@@ -243,7 +250,11 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
 					googleId: googleUser.id,
 					email: googleUser.email,
 					username: googleUser.name || `user_${googleUser.id}`,
-					profilePicUrl: googleUser.picture,
+					profilePicUrl:
+						googleUser.picture ||
+						`https://ui-avatars.com/api/?name=${encodeURIComponent(
+							googleUser.name || googleUser.email,
+						)}&background=random`,
 				});
 			}
 		}
@@ -261,32 +272,5 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
 	} catch (error) {
 		console.error('Google callback error:', error);
 		res.redirect(`${frontendUrl}/login?error=oauth_failed`);
-	}
-};
-
-export const getMe = async (req: Request, res: Response): Promise<void> => {
-	try {
-		if (!req.user) {
-			res.status(401).json({ message: 'Not authenticated' });
-			return;
-		}
-
-		const user = await User.findById(req.user.userId).select('-password -refreshTokens');
-		if (!user) {
-			res.status(404).json({ message: 'User not found' });
-			return;
-		}
-
-		res.json({
-			_id: user._id,
-			email: user.email,
-			username: user.username,
-			profilePicUrl: user.profilePicUrl,
-			createdAt: user.createdAt,
-			updatedAt: user.updatedAt,
-		});
-	} catch (error) {
-		console.error('Get me error:', error);
-		res.status(500).json({ message: 'Internal server error' });
 	}
 };

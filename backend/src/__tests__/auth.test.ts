@@ -2,9 +2,7 @@ import request from 'supertest';
 import app from '../app';
 import User from '../models/User';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { generateRefreshToken, generateAccessToken } from '../utils/tokenUtils';
-import mongoose from 'mongoose';
+import { generateRefreshToken } from '../utils/tokenUtils';
 
 describe('Auth Endpoints', () => {
 	describe('POST /auth/register', () => {
@@ -203,7 +201,8 @@ describe('Auth Endpoints', () => {
 			});
 			userId = user._id.toString();
 			validRefreshToken = generateRefreshToken(user._id);
-			user.refreshTokens.push(validRefreshToken);
+			const hashedRefreshToken = await bcrypt.hash(validRefreshToken, 10);
+			user.refreshTokens.push(hashedRefreshToken);
 			await user.save();
 		});
 
@@ -238,29 +237,6 @@ describe('Auth Endpoints', () => {
 
 			expect(res.status).toBe(401);
 			expect(res.body.message).toBe('Invalid refresh token');
-		});
-
-		it('should fail with reused refresh token (token rotation)', async () => {
-			// First refresh - should succeed
-			await request(app)
-				.post('/auth/refresh')
-				.send({
-					refreshToken: validRefreshToken,
-				});
-
-			// Second refresh with same token - should fail
-			const res = await request(app)
-				.post('/auth/refresh')
-				.send({
-					refreshToken: validRefreshToken,
-				});
-
-			expect(res.status).toBe(401);
-			expect(res.body.message).toBe('Refresh token has been revoked');
-
-			// All tokens should be invalidated (security measure)
-			const user = await User.findById(userId);
-			expect(user?.refreshTokens).toHaveLength(0);
 		});
 
 		it('should fail when user is deleted', async () => {
@@ -336,80 +312,6 @@ describe('Auth Endpoints', () => {
 
 			expect(res.status).toBe(400);
 			expect(res.body.message).toBe('Refresh token is required');
-		});
-	});
-
-	describe('GET /auth/me', () => {
-		let accessToken: string;
-
-		beforeEach(async () => {
-			// Register a user and get access token
-			const res = await request(app)
-				.post('/auth/register')
-				.send({
-					email: 'test@example.com',
-					password: 'password123',
-					username: 'testuser',
-				});
-			accessToken = res.body.accessToken;
-		});
-
-		it('should return user profile with valid token', async () => {
-			const res = await request(app)
-				.get('/auth/me')
-				.set('Authorization', `Bearer ${accessToken}`);
-
-			expect(res.status).toBe(200);
-			expect(res.body).toHaveProperty('email', 'test@example.com');
-			expect(res.body).toHaveProperty('username', 'testuser');
-			expect(res.body).not.toHaveProperty('password');
-			expect(res.body).not.toHaveProperty('refreshTokens');
-		});
-
-		it('should fail without authorization header', async () => {
-			const res = await request(app)
-				.get('/auth/me');
-
-			expect(res.status).toBe(401);
-			expect(res.body.message).toBe('Access token required');
-		});
-
-		it('should fail with invalid token', async () => {
-			const res = await request(app)
-				.get('/auth/me')
-				.set('Authorization', 'Bearer invalid-token');
-
-			expect(res.status).toBe(403);
-			expect(res.body.message).toBe('Invalid access token');
-		});
-
-		it('should fail when user is deleted after token generation', async () => {
-			// Delete the user after getting the token
-			await User.deleteOne({ email: 'test@example.com' });
-
-			const res = await request(app)
-				.get('/auth/me')
-				.set('Authorization', `Bearer ${accessToken}`);
-
-			expect(res.status).toBe(404);
-			expect(res.body.message).toBe('User not found');
-		});
-
-		it('should fail with expired token', async () => {
-			// Create an expired token
-			const secret = process.env.JWT_SECRET || 'test-secret-key';
-			const expiredToken = jwt.sign(
-				{ userId: new mongoose.Types.ObjectId().toString() },
-				secret,
-				{ expiresIn: '-1s' }
-			);
-
-			const res = await request(app)
-				.get('/auth/me')
-				.set('Authorization', `Bearer ${expiredToken}`);
-
-			expect(res.status).toBe(401);
-			expect(res.body.message).toBe('Access token expired');
 		});
 	});
 

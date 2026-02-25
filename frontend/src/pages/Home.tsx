@@ -1,13 +1,14 @@
 import { useState, useCallback } from "react";
 import CreatePost from "../components/CreatePost";
 import Feed from "../components/Feed";
+import ProfilePage from "../components/ProfilePage";
 import "../styles/home.scss";
 import type { User } from "../services/authService";
 import { useAuth } from "../hooks/useAuth";
 
 const Home = ({ user }: { user: User }) => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [activeTab, setActiveTab] = useState<"feed" | "my-posts">("feed");
+  const [activeTab, setActiveTab] = useState<"feed" | "profile">("feed");
   const { logout } = useAuth();
 
   const handlePostCreated = useCallback(() => {
@@ -31,12 +32,10 @@ const Home = ({ user }: { user: User }) => {
               Feed
             </button>
             <button
-              className={`nav-button ${
-                activeTab === "my-posts" ? "active" : ""
-              }`}
-              onClick={() => setActiveTab("my-posts")}
+              className={`nav-button ${activeTab === "profile" ? "active" : ""}`}
+              onClick={() => setActiveTab("profile")}
             >
-              My Posts
+              Profile
             </button>
             <button className="nav-button logout-button" onClick={logout}>
               Logout
@@ -44,10 +43,9 @@ const Home = ({ user }: { user: User }) => {
           </nav>
         </div>
       </header>
-
       <main className="home-main">
         <div className="feed-wrapper">
-          {activeTab === "feed" && (
+          {activeTab === "feed" ? (
             <>
               <CreatePost
                 onPostCreated={handlePostCreated}
@@ -59,15 +57,8 @@ const Home = ({ user }: { user: User }) => {
                 userId={user._id}
               />
             </>
-          )}
-
-          {activeTab === "my-posts" && (
-            <Feed
-              key={refreshTrigger}
-              myPostsOnly={true}
-              onPostUpdate={handlePostUpdate}
-              userId={user._id}
-            />
+          ) : (
+            <ProfilePage />
           )}
         </div>
       </main>

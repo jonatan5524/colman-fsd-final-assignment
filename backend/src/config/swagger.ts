@@ -8,6 +8,16 @@ const options: swaggerJsdoc.Options = {
 			version: '1.0.0',
 			description: 'API documentation for authentication endpoints including local and Google OAuth',
 		},
+		tags: [
+			{
+				name: 'Authentication',
+				description: 'Endpoints for user authentication, registration, and token management',
+			},
+			{
+				name: 'Users',
+				description: 'Endpoints for managing user profiles',
+			},
+		],
 		servers: [
 			{
 				url: 'http://localhost:3000',
