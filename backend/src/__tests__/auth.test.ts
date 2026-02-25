@@ -203,7 +203,8 @@ describe('Auth Endpoints', () => {
 			});
 			userId = user._id.toString();
 			validRefreshToken = generateRefreshToken(user._id);
-			user.refreshTokens.push(validRefreshToken);
+			const hashedRefreshToken = await bcrypt.hash(validRefreshToken, 10);
+			user.refreshTokens.push(hashedRefreshToken);
 			await user.save();
 		});
 
@@ -450,6 +451,71 @@ describe('Auth Endpoints', () => {
 
 			expect(res.status).toBe(302);
 			expect(res.headers.location).toContain('/login?error=oauth_denied');
+		});
+	});
+
+	describe('PUT /auth/users/:userId', () => {
+		let accessToken: string;
+		let userId: string;
+
+		beforeEach(async () => {
+			const res = await request(app)
+				.post('/auth/register')
+				.send({
+					email: 'test@example.com',
+					password: 'password123',
+					username: 'testuser',
+				});
+			accessToken = res.body.accessToken;
+			userId = res.body.user._id;
+		});
+
+		it('should update user profile with new username', async () => {
+			const res = await request(app)
+				.put(`/auth/users/${userId}`)
+				.set('Authorization', `Bearer ${accessToken}`)
+				.send({ username: 'newusername' });
+
+			expect(res.status).toBe(200);
+			expect(res.body.username).toBe('newusername');
+		});
+
+		it('should update user profile with new profile picture', async () => {
+			const res = await request(app)
+				.put(`/auth/users/${userId}`)
+				.set('Authorization', `Bearer ${accessToken}`)
+				.attach('file', 'src/__tests__/test-image.png');
+
+			expect(res.status).toBe(200);
+			expect(res.body.profilePicUrl).toContain('post-');
+		});
+
+		it('should not allow a user to update another user profile', async () => {
+			const otherUserRes = await request(app)
+				.post('/auth/register')
+				.send({
+					email: 'other@example.com',
+					password: 'password123',
+					username: 'otheruser',
+				});
+			const otherUserId = otherUserRes.body.user._id;
+
+			const res = await request(app)
+				.put(`/auth/users/${otherUserId}`)
+				.set('Authorization', `Bearer ${accessToken}`)
+				.send({ username: 'newusername' });
+
+			expect(res.status).toBe(403);
+		});
+
+		it('should return 404 if user not found', async () => {
+			const nonExistentId = new mongoose.Types.ObjectId();
+			const res = await request(app)
+				.put(`/auth/users/${nonExistentId}`)
+				.set('Authorization', `Bearer ${accessToken}`)
+				.send({ username: 'newusername' });
+
+			expect(res.status).toBe(403);
 		});
 	});
 });

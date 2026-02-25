@@ -19,6 +19,7 @@ const ProfilePage: React.FC = () => {
   const [editUsername, setEditUsername] = useState('');
   const [editImage, setEditImage] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -64,12 +65,23 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleSaveClick = async () => {
-    // TODO: Implement API call to update profile
     if (profile) {
-      // Optimistic update for UI demonstration
-      setProfile({ ...profile, username: editUsername, profilePicUrl: editImagePreview || profile.profilePicUrl });
+      try {
+        const formData = new FormData();
+        formData.append('username', editUsername);
+        if (editImage) {
+          formData.append('file', editImage);
+        }
+
+        const updatedUser = await authService.updateProfile(profile._id, formData);
+        setProfile(updatedUser);
+        setIsEditing(false);
+        setRefreshTrigger(prev => prev + 1);
+      } catch (error) {
+        console.error('Failed to update profile:', error);
+        setError('Failed to update profile. Please try again.');
+      }
     }
-    setIsEditing(false);
   };
 
   if (loading) {
@@ -134,11 +146,12 @@ const ProfilePage: React.FC = () => {
       </div>
 
       <div className="profile-posts-section">
-        <h3>My Posts</h3>
+         <h3 style={{ color: 'white' }}>My Posts</h3>
         {profile && (
           <Feed 
             userId={profile._id} 
-            myPostsOnly={true} 
+            myPostsOnly={true}
+            key={refreshTrigger}
           />
         )}
       </div>

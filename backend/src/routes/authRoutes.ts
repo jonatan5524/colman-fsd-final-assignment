@@ -7,8 +7,10 @@ import {
 	googleAuth,
 	googleCallback,
 	getMe,
+	updateProfile,
 } from '../controllers/authController';
 import { authenticateToken } from '../middleware/authMiddleware';
+import { upload } from '../middleware/multer';
 
 const router = Router();
 
@@ -194,5 +196,48 @@ router.get('/google', googleAuth);
  *         description: Redirect to frontend with tokens
  */
 router.get('/google/callback', googleCallback);
+
+/**
+ * @swagger
+ * /auth/users/{userId}:
+ *   put:
+ *     summary: Update user profile
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: User profile updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Not authenticated
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put('/users/:userId', authenticateToken, upload.single('file'), updateProfile);
 
 export default router;
