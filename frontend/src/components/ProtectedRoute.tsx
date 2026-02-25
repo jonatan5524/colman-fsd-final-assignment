@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { Children, cloneElement, isValidElement, type ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-	const { isAuthenticated, isLoading } = useAuth();
+	const { user, isAuthenticated, isLoading } = useAuth();
 	const location = useLocation();
 
 	if (isLoading) {
@@ -23,7 +23,14 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 		return <Navigate to="/login" state={{ from: location }} replace />;
 	}
 
-	return <>{children}</>;
+	const childrenWithProps = Children.map(children, (child) => {
+		if (isValidElement(child)) {
+			return cloneElement(child, { user } as object);
+		}
+		return child;
+	});
+
+	return <>{childrenWithProps}</>;
 };
 
 export default ProtectedRoute;
