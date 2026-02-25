@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import type { Post } from "../services/postsService";
 import postsService from "../services/postsService";
 import type { Comment } from "../services/commentsService";
@@ -10,6 +10,7 @@ import "../styles/PostComments.css";
 const PostComments: React.FC = () => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
 
   const [post, setPost] = useState<Post | null>(null);
@@ -79,6 +80,17 @@ const PostComments: React.FC = () => {
     }
   };
 
+  const fromTab =
+    (location.state as { fromTab?: "feed" | "my-posts" } | null)?.fromTab;
+
+  const handleBack = () => {
+    if (fromTab === "my-posts") {
+      navigate("/", { state: { initialTab: "my-posts" } });
+    } else {
+      navigate("/", { state: { initialTab: "feed" } });
+    }
+  };
+
   if (loading) {
     return <div className="post-comments-page">Loading...</div>;
   }
@@ -86,12 +98,8 @@ const PostComments: React.FC = () => {
   if (error) {
     return (
       <div className="post-comments-page">
-        <button
-          type="button"
-          className="back-button"
-          onClick={() => navigate("/")}
-        >
-          ← Back to feed
+        <button type="button" className="back-button" onClick={handleBack}>
+          {fromTab === "my-posts" ? "← Back to my posts" : "← Back to feed"}
         </button>
         <div className="error-message">{error}</div>
       </div>
@@ -101,12 +109,8 @@ const PostComments: React.FC = () => {
   if (!post) {
     return (
       <div className="post-comments-page">
-        <button
-          type="button"
-          className="back-button"
-          onClick={() => navigate("/")}
-        >
-          ← Back to feed
+        <button type="button" className="back-button" onClick={handleBack}>
+          {fromTab === "my-posts" ? "← Back to my posts" : "← Back to feed"}
         </button>
         <div className="error-message">Post not found</div>
       </div>
@@ -115,12 +119,8 @@ const PostComments: React.FC = () => {
 
   return (
     <div className="post-comments-page">
-      <button
-        type="button"
-        className="back-button"
-        onClick={() => navigate("/")}
-      >
-        ← Back to feed
+      <button type="button" className="back-button" onClick={handleBack}>
+        {fromTab === "my-posts" ? "← Back to my posts" : "← Back to feed"}
       </button>
 
       <section className="post-section">

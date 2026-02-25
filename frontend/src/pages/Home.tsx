@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import CreatePost from "../components/CreatePost";
 import Feed from "../components/Feed";
 import "../styles/home.scss";
@@ -7,7 +8,17 @@ import { useAuth } from "../hooks/useAuth";
 
 const Home = ({ user }: { user: User }) => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [activeTab, setActiveTab] = useState<"feed" | "my-posts">("feed");
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState<"feed" | "my-posts">(() => {
+    const state = location.state as { initialTab?: "feed" | "my-posts" } | null;
+    const initialTab = state?.initialTab;
+
+    if (initialTab === "feed" || initialTab === "my-posts") {
+      return initialTab;
+    }
+
+    return "feed";
+  });
   const { logout } = useAuth();
 
   const handlePostCreated = useCallback(() => {

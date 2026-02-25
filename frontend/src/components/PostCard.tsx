@@ -16,6 +16,7 @@ interface PostCardProps {
   onDelete: (postId: string) => void;
   onEditTextChange: (text: string) => void;
   onEditImageSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  sourceTab: "feed" | "my-posts";
 }
 
 const formatDate = (dateString: string) => {
@@ -46,6 +47,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   onDelete,
   onEditTextChange,
   onEditImageSelect,
+  sourceTab,
 }) => {
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -153,7 +155,11 @@ export const PostCard: React.FC<PostCardProps> = ({
           <button
             type="button"
             className="post-comments-link"
-            onClick={() => navigate(`/posts/${post._id}/comments`)}
+            onClick={() =>
+              navigate(`/posts/${post._id}/comments`, {
+                state: { fromTab: sourceTab },
+              })
+            }
           >
             {post.comments.length === 0 && "No comments yet"}
             {post.comments.length === 1 && "1 comment"}
