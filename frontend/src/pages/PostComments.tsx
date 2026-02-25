@@ -6,14 +6,13 @@ import type { Comment } from "../services/commentsService";
 import commentsService from "../services/commentsService";
 import { useAuth } from "../hooks/useAuth";
 import ConfirmDialog from "../components/ConfirmDialog";
-import "../styles/home.scss";
 import "../styles/PostComments.scss";
 
 const PostComments: React.FC = () => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -107,331 +106,164 @@ const PostComments: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="home-page">
-        <header className="home-header">
-          <div className="header-content">
-            <h1>📱 Social Feed</h1>
-            <nav className="header-nav">
-              <button
-                className={`nav-button ${fromTab !== "my-posts" ? "active" : ""}`}
-                onClick={() =>
-                  navigate("/", { state: { initialTab: "feed" } })
-                }
-              >
-                Feed
-              </button>
-              <button
-                className={`nav-button ${
-                  fromTab === "my-posts" ? "active" : ""
-                }`}
-                onClick={() =>
-                  navigate("/", { state: { initialTab: "my-posts" } })
-                }
-              >
-                My Posts
-              </button>
-              <button
-                className="nav-button logout-button"
-                onClick={logout}
-              >
-                Logout
-              </button>
-            </nav>
-          </div>
-        </header>
-        <main className="home-main">
-          <div className="feed-wrapper">
-            <div className="post-comments-page">Loading...</div>
-          </div>
-        </main>
-      </div>
-    );
+    return <div className="post-comments-page">Loading...</div>;
   }
 
-  if (error) {
+  if (error && !post) {
     return (
-      <div className="home-page">
-        <header className="home-header">
-          <div className="header-content">
-            <h1>📱 Social Feed</h1>
-            <nav className="header-nav">
-              <button
-                className={`nav-button ${fromTab !== "my-posts" ? "active" : ""}`}
-                onClick={() =>
-                  navigate("/", { state: { initialTab: "feed" } })
-                }
-              >
-                Feed
-              </button>
-              <button
-                className={`nav-button ${
-                  fromTab === "my-posts" ? "active" : ""
-                }`}
-                onClick={() =>
-                  navigate("/", { state: { initialTab: "my-posts" } })
-                }
-              >
-                My Posts
-              </button>
-              <button
-                className="nav-button logout-button"
-                onClick={logout}
-              >
-                Logout
-              </button>
-            </nav>
-          </div>
-        </header>
-        <main className="home-main">
-          <div className="feed-wrapper">
-            <div className="post-comments-page">
-              <button
-                type="button"
-                className="back-button"
-                onClick={handleBack}
-              >
-                {fromTab === "my-posts"
-                  ? "← Back to my posts"
-                  : "← Back to feed"}
-              </button>
-              <div className="error-message">{error}</div>
-            </div>
-          </div>
-        </main>
+      <div className="post-comments-page">
+        <button type="button" className="back-button" onClick={handleBack}>
+          {fromTab === "my-posts" ? "← Back to my posts" : "← Back to feed"}
+        </button>
+        <div className="error-message">{error}</div>
       </div>
     );
   }
 
   if (!post) {
     return (
-      <div className="home-page">
-        <header className="home-header">
-          <div className="header-content">
-            <h1>📱 Social Feed</h1>
-            <nav className="header-nav">
-              <button
-                className={`nav-button ${fromTab !== "my-posts" ? "active" : ""}`}
-                onClick={() =>
-                  navigate("/", { state: { initialTab: "feed" } })
-                }
-              >
-                Feed
-              </button>
-              <button
-                className={`nav-button ${
-                  fromTab === "my-posts" ? "active" : ""
-                }`}
-                onClick={() =>
-                  navigate("/", { state: { initialTab: "my-posts" } })
-                }
-              >
-                My Posts
-              </button>
-              <button
-                className="nav-button logout-button"
-                onClick={logout}
-              >
-                Logout
-              </button>
-            </nav>
-          </div>
-        </header>
-        <main className="home-main">
-          <div className="feed-wrapper">
-            <div className="post-comments-page">
-              <button
-                type="button"
-                className="back-button"
-                onClick={handleBack}
-              >
-                {fromTab === "my-posts"
-                  ? "← Back to my posts"
-                  : "← Back to feed"}
-              </button>
-              <div className="error-message">Post not found</div>
-            </div>
-          </div>
-        </main>
+      <div className="post-comments-page">
+        <button type="button" className="back-button" onClick={handleBack}>
+          {fromTab === "my-posts" ? "← Back to my posts" : "← Back to feed"}
+        </button>
+        <div className="error-message">Post not found</div>
       </div>
     );
   }
 
   return (
-    <div className="home-page">
-      <header className="home-header">
-        <div className="header-content">
-          <h1>📱 Social Feed</h1>
-          <nav className="header-nav">
-            <button
-              className={`nav-button ${fromTab !== "my-posts" ? "active" : ""}`}
-              onClick={() =>
-                navigate("/", { state: { initialTab: "feed" } })
-              }
-            >
-              Feed
-            </button>
-            <button
-              className={`nav-button ${
-                fromTab === "my-posts" ? "active" : ""
-              }`}
-              onClick={() =>
-                navigate("/", { state: { initialTab: "my-posts" } })
-              }
-            >
-              My Posts
-            </button>
-            <button
-              className="nav-button logout-button"
-              onClick={logout}
-            >
-              Logout
-            </button>
-          </nav>
-        </div>
-      </header>
-      <main className="home-main">
-        <div className="feed-wrapper">
-          <div className="post-comments-page">
-            <button
-              type="button"
-              className="back-button"
-              onClick={handleBack}
-            >
-              {fromTab === "my-posts"
-                ? "← Back to my posts"
-                : "← Back to feed"}
-            </button>
+    <div className="post-comments-page">
+      <button type="button" className="back-button" onClick={handleBack}>
+        {fromTab === "my-posts" ? "← Back to my posts" : "← Back to feed"}
+      </button>
 
-            <section className="post-section">
-              <h2>Post</h2>
-              <div className="post-card">
-                <div className="post-header">
-                  <div className="author-info">
-                    {post.authorId && post.authorId.profilePicUrl && (
-                      <img
-                        src={post.authorId.profilePicUrl}
-                        alt={post.authorId.username || "Author"}
-                        className="author-avatar"
-                      />
-                    )}
-                    <div className="author-details">
-                      <h3 className="author-name">
-                        {post.authorId
-                          ? post.authorId.username
-                          : "Unknown Author"}
-                      </h3>
-                      <span className="post-time">
-                        {new Date(post.createdAt).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="post-content">
-                  <p className="post-text">{post.content}</p>
-                  {post.imageUrl && (
-                    <img
-                      src={post.imageUrl}
-                      alt="Post"
-                      className="post-image"
-                    />
-                  )}
-                </div>
+      {error && <div className="error-message">{error}</div>}
+
+      <section className="post-section">
+        <h2>Post</h2>
+        <div className="post-card">
+          <div className="post-header">
+            <div className="author-info">
+              {post.authorId && post.authorId.profilePicUrl && (
+                <img
+                  src={post.authorId.profilePicUrl}
+                  alt={post.authorId.username || "Author"}
+                  className="author-avatar"
+                />
+              )}
+              <div className="author-details">
+                <h3 className="author-name">
+                  {post.authorId
+                    ? post.authorId.username
+                    : "Unknown Author"}
+                </h3>
+                <span className="post-time">
+                  {new Date(post.createdAt).toLocaleString()}
+                </span>
               </div>
-            </section>
-
-            <section className="comments-section">
-              <h2>Comments</h2>
-
-              {user && (
-                <form
-                  className="add-comment-form"
-                  onSubmit={handleAddComment}
-                >
-                  <textarea
-                    className="comment-input"
-                    placeholder="Write a comment..."
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    maxLength={1000}
-                    disabled={submitting}
-                  />
-                  <div className="add-comment-actions">
-                    <span className="char-count">
-                      {commentText.length}/1000
-                    </span>
-                    <button
-                      type="submit"
-                      className="submit-comment-button"
-                      disabled={submitting || !commentText.trim()}
-                    >
-                      {submitting ? "Posting..." : "Post Comment"}
-                    </button>
-                  </div>
-                </form>
-              )}
-
-              {comments.length === 0 && (
-                <div className="no-comments">
-                  No comments yet. Be the first!
-                </div>
-              )}
-
-              <ul className="comments-list">
-                {comments.map((comment) => (
-                  <li key={comment._id} className="comment-item">
-                    <div className="comment-header">
-                      <div className="comment-author">
-                        {comment.authorId.profilePicUrl && (
-                          <img
-                            src={comment.authorId.profilePicUrl}
-                            alt={comment.authorId.username}
-                            className="comment-avatar"
-                          />
-                        )}
-                        <div className="comment-author-details">
-                          <span className="comment-author-name">
-                            {comment.authorId.username}
-                          </span>
-                          <span className="comment-time">
-                            {new Date(
-                              comment.createdAt,
-                            ).toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-                      {user && user._id === comment.authorId._id && (
-                        <button
-                          type="button"
-                          className="delete-comment-button"
-                          onClick={() => handleRequestDeleteComment(comment)}
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </div>
-                    <p className="comment-content">{comment.content}</p>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <ConfirmDialog
-              isOpen={commentToDelete !== null}
-              title="Delete Comment"
-              message="Are you sure you want to delete this comment? This action cannot be undone."
-              cancelText="Cancel"
-              confirmText="Delete"
-              isDangerous={true}
-              onCancel={handleCancelDeleteComment}
-              onConfirm={handleConfirmDeleteComment}
-            />
+            </div>
+          </div>
+          <div className="post-content">
+            <p className="post-text">{post.content}</p>
+            {post.imageUrl && (
+              <img
+                src={post.imageUrl}
+                alt="Post"
+                className="post-image"
+              />
+            )}
           </div>
         </div>
-      </main>
+      </section>
+
+      <section className="comments-section">
+        <h2>Comments</h2>
+
+        {user && (
+          <form
+            className="add-comment-form"
+            onSubmit={handleAddComment}
+          >
+            <textarea
+              className="comment-input"
+              placeholder="Write a comment..."
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              maxLength={1000}
+              disabled={submitting}
+            />
+            <div className="add-comment-actions">
+              <span className="char-count">
+                {commentText.length}/1000
+              </span>
+              <button
+                type="submit"
+                className="submit-comment-button"
+                disabled={submitting || !commentText.trim()}
+              >
+                {submitting ? "Posting..." : "Post Comment"}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {comments.length === 0 && (
+          <div className="no-comments">
+            No comments yet. Be the first!
+          </div>
+        )}
+
+        <ul className="comments-list">
+          {comments.map((comment) => (
+            <li key={comment._id} className="comment-item">
+              <div className="comment-header">
+                <div className="comment-author">
+                  {comment.authorId.profilePicUrl && (
+                    <img
+                      src={comment.authorId.profilePicUrl}
+                      alt={comment.authorId.username}
+                      className="comment-avatar"
+                    />
+                  )}
+                  <div className="comment-author-details">
+                    <span className="comment-author-name">
+                      {comment.authorId.username}
+                    </span>
+                    <span className="comment-time">
+                      {new Date(
+                        comment.createdAt,
+                      ).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+                {user && user._id === comment.authorId._id && (
+                  <button
+                    type="button"
+                    className="delete-comment-button"
+                    onClick={() => handleRequestDeleteComment(comment)}
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+              <p className="comment-content">{comment.content}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <ConfirmDialog
+        isOpen={commentToDelete !== null}
+        title="Delete Comment"
+        message="Are you sure you want to delete this comment? This action cannot be undone."
+        cancelText="Cancel"
+        confirmText="Delete"
+        isDangerous={true}
+        onCancel={handleCancelDeleteComment}
+        onConfirm={handleConfirmDeleteComment}
+      />
     </div>
   );
 };
 
 export default PostComments;
-
