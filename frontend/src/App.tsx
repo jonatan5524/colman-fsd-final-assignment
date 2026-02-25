@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
+import PostComments from './pages/PostComments';
 import AuthCallback from './pages/AuthCallback';
 import { setNavigate } from './services/navigationService';
 
@@ -29,6 +30,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Home />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/posts/:postId/comments"
+          element={
+            <ProtectedRoute>
+              <PostComments />
             </ProtectedRoute>
           }
         />
