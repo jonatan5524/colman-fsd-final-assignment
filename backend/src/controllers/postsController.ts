@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Post from "../models/Post";
 import User from "../models/User";
+import Like from "../models/Like";
 
 // Controller functions will be implemented here for each route
 
@@ -87,7 +88,13 @@ export const getPostById = async (req: Request, res: Response) => {
 			return res.status(404).json({ error: "Post not found" });
 		}
 
-		return res.status(200).json(post);
+		let isLiked = false;
+		if (req.user?.userId) {
+			const like = await Like.findOne({ postId: post._id, userId: req.user.userId }).lean();
+			isLiked = !!like;
+		}
+
+		return res.status(200).json({ ...post, isLiked });
 	} catch (error) {
 		console.error("Error fetching post:", error);
 		return res.status(500).json({ error: "Failed to fetch post" });
@@ -108,8 +115,22 @@ export const getFeed = async (req: Request, res: Response) => {
 
 		const total = await Post.countDocuments();
 
+		const userId = req.user?.userId;
+		let postsWithLikes = posts.map(p => ({ ...p, isLiked: false }));
+
+		if (userId && posts.length > 0) {
+			const postIds = posts.map(p => p._id);
+			const likes = await Like.find({ postId: { $in: postIds }, userId }).lean();
+			const likedPostIds = new Set(likes.map(l => l.postId.toString()));
+			
+			postsWithLikes = posts.map(p => ({
+				...p,
+				isLiked: likedPostIds.has(p._id.toString()),
+			}));
+		}
+
 		res.json({
-			posts,
+			posts: postsWithLikes,
 			pagination: {
 				limit,
 				skip,
@@ -142,8 +163,22 @@ export const getMyPosts = async (req: Request, res: Response) => {
 
 		const total = await Post.countDocuments({ authorId: userId });
 
+		const currentUserId = req.user?.userId;
+		let postsWithLikes = posts.map(p => ({ ...p, isLiked: false }));
+
+		if (currentUserId && posts.length > 0) {
+			const postIds = posts.map(p => p._id);
+			const likes = await Like.find({ postId: { $in: postIds }, userId: currentUserId }).lean();
+			const likedPostIds = new Set(likes.map(l => l.postId.toString()));
+			
+			postsWithLikes = posts.map(p => ({
+				...p,
+				isLiked: likedPostIds.has(p._id.toString()),
+			}));
+		}
+
 		res.json({
-			posts,
+			posts: postsWithLikes,
 			pagination: {
 				limit,
 				skip,
@@ -221,11 +256,17 @@ export const updatePost = async (req: Request, res: Response) => {
 		const updatedPost = await Post.findById(post._id).populate(
 			"authorId",
 			"username profilePicUrl",
-		);
+		).lean();
+
+		let isLiked = false;
+		if (userId && updatedPost) {
+			const like = await Like.findOne({ postId: updatedPost._id, userId }).lean();
+			isLiked = !!like;
+		}
 
 		res.json({
 			message: "Post updated successfully",
-			post: updatedPost,
+			post: { ...updatedPost, isLiked },
 		});
 	} catch (error) {
 		if (req.file) {
@@ -304,8 +345,22 @@ export const getPostsByUser = async (req: Request, res: Response) => {
 
 		const total = await Post.countDocuments({ authorId: userId });
 
+		const currentUserId = req.user?.userId;
+		let postsWithLikes = posts.map(p => ({ ...p, isLiked: false }));
+
+		if (currentUserId && posts.length > 0) {
+			const postIds = posts.map(p => p._id);
+			const likes = await Like.find({ postId: { $in: postIds }, userId: currentUserId }).lean();
+			const likedPostIds = new Set(likes.map(l => l.postId.toString()));
+			
+			postsWithLikes = posts.map(p => ({
+				...p,
+				isLiked: likedPostIds.has(p._id.toString()),
+			}));
+		}
+
 		res.json({
-			posts,
+			posts: postsWithLikes,
 			pagination: {
 				limit,
 				skip,
@@ -316,5 +371,52 @@ export const getPostsByUser = async (req: Request, res: Response) => {
 	} catch (error) {
 		console.error("Error fetching user posts:", error);
 		res.status(500).json({ error: "Failed to fetch user posts" });
+	}
+};
+
+export const toggleLikePost = async (req: Request, res: Response) => {
+	try {
+		const postId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+		const userId = req.user?.userId;
+
+		if (!userId) {
+			return res.status(401).json({ error: "Unauthorized" });
+		}
+
+		if (!Types.ObjectId.isValid(postId)) {
+			return res.status(400).json({ error: "Invalid post ID" });
+		}
+
+		const post = await Post.findById(postId);
+		if (!post) {
+			return res.status(404).json({ error: "Post not found" });
+		}
+
+		const existingLike = await Like.findOne({ postId, userId });
+
+		if (existingLike) {
+			// Unlike
+			await Like.findByIdAndDelete(existingLike._id);
+			post.likesCount = Math.max(0, post.likesCount - 1);
+			await post.save();
+
+			return res.json({
+				isLiked: false,
+				likesCount: post.likesCount,
+			});
+		} else {
+			// Like
+			await Like.create({ postId, userId });
+			post.likesCount += 1;
+			await post.save();
+
+			return res.json({
+				isLiked: true,
+				likesCount: post.likesCount,
+			});
+		}
+	} catch (error) {
+		console.error("Error toggling like:", error);
+		res.status(500).json({ error: "Failed to toggle like on post" });
 	}
 };

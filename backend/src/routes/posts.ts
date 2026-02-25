@@ -294,6 +294,38 @@ router.delete(
 
 /**
  * @swagger
+ * /api/posts/{id}/like:
+ *   post:
+ *     summary: Toggle like on a post
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Like toggled successfully
+ *       400:
+ *         description: Invalid post ID
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Post not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post(
+  "/:id/like",
+  authenticateToken,
+  postsController.toggleLikePost
+);
+
+/**
+ * @swagger
  * /api/posts/user/{userId}:
  *   get:
  *     summary: Get all posts by a specific user
