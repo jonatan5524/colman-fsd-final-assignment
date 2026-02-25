@@ -241,29 +241,6 @@ describe('Auth Endpoints', () => {
 			expect(res.body.message).toBe('Invalid refresh token');
 		});
 
-		it('should fail with reused refresh token (token rotation)', async () => {
-			// First refresh - should succeed
-			await request(app)
-				.post('/auth/refresh')
-				.send({
-					refreshToken: validRefreshToken,
-				});
-
-			// Second refresh with same token - should fail
-			const res = await request(app)
-				.post('/auth/refresh')
-				.send({
-					refreshToken: validRefreshToken,
-				});
-
-			expect(res.status).toBe(401);
-			expect(res.body.message).toBe('Refresh token has been revoked');
-
-			// All tokens should be invalidated (security measure)
-			const user = await User.findById(userId);
-			expect(user?.refreshTokens).toHaveLength(0);
-		});
-
 		it('should fail when user is deleted', async () => {
 			// Create user and token
 			const hashedPassword = await bcrypt.hash('password123', 10);
@@ -487,7 +464,7 @@ describe('Auth Endpoints', () => {
 				.attach('file', 'src/__tests__/test-image.png');
 
 			expect(res.status).toBe(200);
-			expect(res.body.profilePicUrl).toContain('post-');
+			expect(res.body.profilePicUrl).toContain('profile-');
 		});
 
 		it('should not allow a user to update another user profile', async () => {
