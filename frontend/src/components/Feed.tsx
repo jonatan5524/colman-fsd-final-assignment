@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import type { Post, FeedResponse } from "../services/postsService";
 import { postsService } from "../services/postsService";
 import PostCard from "./PostCard";
-import "../styles/Feed.css";
+import "../styles/Feed.scss";
 
 interface FeedProps {
   userId: string;
@@ -173,6 +173,7 @@ export const Feed: React.FC<FeedProps> = ({
             onDelete={handleDelete}
             onEditTextChange={setEditText}
             onEditImageSelect={handleEditImageSelect}
+            sourceTab={myPostsOnly ? "my-posts" : "feed"}
           />
         ))}
       </div>

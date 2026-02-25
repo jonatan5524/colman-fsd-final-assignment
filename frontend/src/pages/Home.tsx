@@ -1,15 +1,17 @@
 import { useState, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import CreatePost from "../components/CreatePost";
 import Feed from "../components/Feed";
 import ProfilePage from "../components/ProfilePage";
-import "../styles/home.scss";
-import type { User } from "../services/authService";
 import { useAuth } from "../hooks/useAuth";
 
-const Home = ({ user }: { user: User }) => {
+const Home = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [activeTab, setActiveTab] = useState<"feed" | "profile">("feed");
-  const { logout } = useAuth();
+  const location = useLocation();
+  const { user } = useAuth();
+
+  const state = location.state as { initialTab?: "feed" | "profile" } | null;
+  const activeTab = state?.initialTab === "profile" ? "profile" : "feed";
 
   const handlePostCreated = useCallback(() => {
     setRefreshTrigger((prev) => prev + 1);
@@ -19,50 +21,26 @@ const Home = ({ user }: { user: User }) => {
     setRefreshTrigger((prev) => prev + 1);
   }, []);
 
+  if (!user) return null;
+
   return (
-    <div className="home-page">
-      <header className="home-header">
-        <div className="header-content">
-          <h1>📱 Social Feed</h1>
-          <nav className="header-nav">
-            <button
-              className={`nav-button ${activeTab === "feed" ? "active" : ""}`}
-              onClick={() => setActiveTab("feed")}
-            >
-              Feed
-            </button>
-            <button
-              className={`nav-button ${activeTab === "profile" ? "active" : ""}`}
-              onClick={() => setActiveTab("profile")}
-            >
-              Profile
-            </button>
-            <button className="nav-button logout-button" onClick={logout}>
-              Logout
-            </button>
-          </nav>
-        </div>
-      </header>
-      <main className="home-main">
-        <div className="feed-wrapper">
-          {activeTab === "feed" ? (
-            <>
-              <CreatePost
-                onPostCreated={handlePostCreated}
-                userName={user.username || "Anonymous"}
-              />
-              <Feed
-                key={refreshTrigger}
-                onPostUpdate={handlePostUpdate}
-                userId={user._id}
-              />
-            </>
-          ) : (
-            <ProfilePage />
-          )}
-        </div>
-      </main>
-    </div>
+    <>
+      {activeTab === "feed" ? (
+        <>
+          <CreatePost
+            onPostCreated={handlePostCreated}
+            userName={user.username || "Anonymous"}
+          />
+          <Feed
+            key={refreshTrigger}
+            onPostUpdate={handlePostUpdate}
+            userId={user._id}
+          />
+        </>
+      ) : (
+        <ProfilePage />
+      )}
+    </>
   );
 };
 

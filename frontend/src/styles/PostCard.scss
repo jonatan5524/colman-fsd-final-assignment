@@ -99,8 +99,29 @@
   color: #65676b;
 }
 
+.post-footer-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
 .post-date {
   cursor: default;
+}
+
+.post-comments-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  color: #1976d2;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.post-comments-link:hover {
+  text-decoration: underline;
 }
 
 /* Edit Form Styles */

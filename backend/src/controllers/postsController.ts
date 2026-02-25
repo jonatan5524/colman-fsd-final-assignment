@@ -1,12 +1,12 @@
-import { Request, Response } from 'express';
-import Post from '../models/Post';
-import User from '../models/User';
+import { Request, Response } from "express";
+import Post from "../models/Post";
+import User from "../models/User";
 
 // Controller functions will be implemented here for each route
 
-import fs from 'fs';
-import path from 'path';
-import { Types } from 'mongoose';
+import fs from "fs";
+import path from "path";
+import { Types } from "mongoose";
 
 export const createPost = async (req: Request, res: Response) => {
 	try {
@@ -68,6 +68,29 @@ export const createPost = async (req: Request, res: Response) => {
 		}
 		console.error("Error creating post:", error);
 		res.status(500).json({ error: "Failed to create post" });
+	}
+};
+
+export const getPostById = async (req: Request, res: Response) => {
+	try {
+		const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+
+		if (!rawId || !Types.ObjectId.isValid(rawId)) {
+			return res.status(400).json({ error: "Invalid post ID" });
+		}
+
+		const post = await Post.findById(rawId)
+			.populate("authorId", "username profilePicUrl")
+			.lean();
+
+		if (!post) {
+			return res.status(404).json({ error: "Post not found" });
+		}
+
+		return res.status(200).json(post);
+	} catch (error) {
+		console.error("Error fetching post:", error);
+		return res.status(500).json({ error: "Failed to fetch post" });
 	}
 };
 

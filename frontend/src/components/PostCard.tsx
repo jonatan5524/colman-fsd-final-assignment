@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { Post } from "../services/postsService";
 import ConfirmDialog from "./ConfirmDialog";
-import "../styles/PostCard.css";
+import "../styles/PostCard.scss";
 
 interface PostCardProps {
   post: Post;
@@ -15,6 +16,7 @@ interface PostCardProps {
   onDelete: (postId: string) => void;
   onEditTextChange: (text: string) => void;
   onEditImageSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  sourceTab: "feed" | "my-posts";
 }
 
 const formatDate = (dateString: string) => {
@@ -45,7 +47,9 @@ export const PostCard: React.FC<PostCardProps> = ({
   onDelete,
   onEditTextChange,
   onEditImageSelect,
+  sourceTab,
 }) => {
+  const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const isOwner = post.authorId && currentUserId === post.authorId._id;
 
@@ -144,9 +148,24 @@ export const PostCard: React.FC<PostCardProps> = ({
       </div>
 
       <div className="post-footer">
-        <span className="post-date">
-          {new Date(post.createdAt).toLocaleString()}
-        </span>
+        <div className="post-footer-main">
+          <span className="post-date">
+            {new Date(post.createdAt).toLocaleString()}
+          </span>
+          <button
+            type="button"
+            className="post-comments-link"
+            onClick={() =>
+              navigate(`/posts/${post._id}/comments`, {
+                state: { fromTab: sourceTab },
+              })
+            }
+          >
+            {post.comments.length === 0 && "No comments yet"}
+            {post.comments.length === 1 && "1 comment"}
+            {post.comments.length > 1 && `${post.comments.length} comments`}
+          </button>
+        </div>
       </div>
 
       <ConfirmDialog
