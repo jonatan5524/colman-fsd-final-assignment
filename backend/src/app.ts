@@ -36,6 +36,9 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files from the "uploads" directory
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/auth", authRoutes);

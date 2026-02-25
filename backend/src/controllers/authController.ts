@@ -312,7 +312,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
 		}
 
 		if (req.file) {
-			user.profilePicUrl = `/uploads/posts/${req.file.filename}`;
+			user.profilePicUrl = `/uploads/profiles/${req.file.filename}`;
 		}
 
 		await user.save();
