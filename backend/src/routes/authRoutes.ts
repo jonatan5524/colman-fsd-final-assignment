@@ -6,9 +6,7 @@ import {
 	logout,
 	googleAuth,
 	googleCallback,
-	getMe,
 } from '../controllers/authController';
-import { authenticateToken } from '../middleware/authMiddleware';
 
 const router = Router();
 
@@ -136,30 +134,6 @@ router.post('/refresh', refreshToken);
  *         description: Internal server error
  */
 router.post('/logout', logout);
-
-/**
- * @swagger
- * /auth/me:
- *   get:
- *     summary: Get current user profile
- *     tags: [Authentication]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: User profile
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
- *       401:
- *         description: Not authenticated
- *       404:
- *         description: User not found
- *       500:
- *         description: Internal server error
- */
-router.get('/me', authenticateToken, getMe);
 
 /**
  * @swagger

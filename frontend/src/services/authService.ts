@@ -54,12 +54,21 @@ export const authService = {
 	},
 
 	async getMe(): Promise<User> {
-		const response = await api.get<User>('/auth/me');
+		const response = await api.get<User>('/profile/');
 		return response.data;
 	},
 
 	getGoogleAuthUrl(): string {
 		return `${API_URL}/auth/google`;
+	},
+
+	async updateProfile(userId: string, formData: FormData): Promise<User> {
+		const response = await api.put<User>(`/profile/users/${userId}`, formData, {
+			headers: {
+				'Content-Type': 'multipart/form-data',
+			},
+		});
+		return response.data;
 	},
 };
 

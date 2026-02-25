@@ -4,6 +4,7 @@ import path from "path";
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import morgan from "morgan";
+import profileRoutes from "./routes/profileRoutes";
 import swaggerUi from "swagger-ui-express";
 import mongoose from "mongoose";
 import { swaggerSpec } from "./config/swagger";
@@ -37,10 +38,13 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files from the "uploads" directory
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/auth", authRoutes);
-
+app.use("/profile", profileRoutes); 
 app.use("/posts", postsRouter);
 app.use("/comments", commentsRouter);
 
