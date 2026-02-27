@@ -107,7 +107,7 @@ const seedDatabase = async () => {
 		for (let i = 0; i < 30; i++) {
 			const template = postTemplates[i % postTemplates.length];
 			const randomUser = users[Math.floor(Math.random() * users.length)];
-			const isDifferentAuthor = (u: any) => u._id !== randomUser._id;
+			const isDifferentAuthor = (u: typeof randomUser) => u._id !== randomUser._id;
 			const potentialLikers = users.filter(isDifferentAuthor);
 			const numLikes = Math.floor(Math.random() * (potentialLikers.length + 1));
 			const likes = potentialLikers.slice(0, numLikes).map(u => u._id);

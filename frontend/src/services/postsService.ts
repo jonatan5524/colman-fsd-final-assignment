@@ -108,7 +108,7 @@ export const postsService = {
 
 	// Search posts
 	async searchPosts(query: string): Promise<FeedResponse> {
-		const response = await api.get<{ posts: Post[], meta: any }>('/posts/search', {
+		const response = await api.get<{ posts: Post[], meta: FeedResponse['meta'] }>('/posts/search', {
 			params: { q: query },
 		});
 		return {

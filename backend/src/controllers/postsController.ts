@@ -1,13 +1,9 @@
 import { Request, Response } from "express";
-import Post from "../models/Post";
-import User from "../models/User";
-import { analyzeImage } from "../services/ai_service";
-
-// Controller functions will be implemented here for each route
-
 import fs from "fs";
 import path from "path";
 import { Types } from "mongoose";
+import Post from "../models/Post";
+import { analyzeImage } from "../services/ai_service";
 
 export const createPost = async (req: Request, res: Response) => {
 	try {

@@ -1,21 +1,18 @@
 import { Request, Response } from "express";
 import Post from "../models/Post";
 import { extractKeywords } from "../services/ai_service";
+import { ValidationError, isHttpError } from "../types/errors";
 
 export const searchPosts = async (req: Request, res: Response) => {
 	try {
 		const query = req.query.q as string;
 
 		if (!query || query.trim().length === 0) {
-			const err: any = new Error("Search query cannot be empty");
-			err.status = 400;
-			throw err;
+			throw new ValidationError("Search query cannot be empty");
 		}
 
 		if (query.length > 200) {
-			const err: any = new Error("Search query must not exceed 200 characters");
-			err.status = 400;
-			throw err;
+			throw new ValidationError("Search query must not exceed 200 characters");
 		}
 
 		let searchTerms = query.trim();
@@ -53,9 +50,10 @@ export const searchPosts = async (req: Request, res: Response) => {
 			}
 		});
 
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.error("Error searching posts:", error);
-		const status = error.status || 500;
-		res.status(status).json({ error: error.message || "Failed to search posts" });
+		const status = isHttpError(error) ? error.status : 500;
+		const message = error instanceof Error ? error.message : "Failed to search posts";
+		res.status(status).json({ error: message });
 	}
 };

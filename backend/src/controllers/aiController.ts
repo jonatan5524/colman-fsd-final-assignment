@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { analyzeContent } from "../services/ai_service";
+import { isHttpError, LLMQuotaError, LLMUnavailableError } from "../types/errors";
 
 export const analyzeText = async (req: Request, res: Response): Promise<void> => {
 	const { content } = req.body;
@@ -12,13 +13,13 @@ export const analyzeText = async (req: Request, res: Response): Promise<void> =>
 	try {
 		const result = await analyzeContent(content);
 		res.status(200).json(result);
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.error("AI Analysis Error:", error);
-		if (error.status === 429 || error.message?.includes("quota")) {
+		if (error instanceof LLMQuotaError || (error instanceof Error && error.message?.includes("quota"))) {
 			res.status(429).json({ message: "AI service quota exceeded or unavailable" });
 			return;
 		}
-		if (error.status === 503) {
+		if (error instanceof LLMUnavailableError) {
 			res.status(503).json({ message: "AI service is currently unavailable" });
 			return;
 		}

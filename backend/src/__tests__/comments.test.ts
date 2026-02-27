@@ -280,5 +280,4 @@ describe("Comments API", () => {
       );
     });
   });
-}
-
+});

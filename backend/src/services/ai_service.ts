@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 import fs from "fs";
-import path from "path";
+import { LLMUnavailableError, LLMServiceError } from "../types/errors";
 
 let model: GenerativeModel | null = null;
 
@@ -20,9 +20,7 @@ const getModel = (): GenerativeModel => {
 	}
 
 	if (!model) {
-		const err: any = new Error("AI service is not configured. Missing GEMINI_API_KEY.");
-		err.status = 503; // Service Unavailable
-		throw err;
+		throw new LLMUnavailableError();
 	}
 
 	return model;
@@ -84,11 +82,9 @@ Output: asdfasdf`;
 		});
 		const response = await result.response;
 		return response.text().trim();
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.error("Error extracting keywords with Gemini API:", error);
-		const err: any = new Error("Failed to extract keywords");
-		err.status = 500;
-		throw err;
+		throw new LLMServiceError("Failed to extract keywords");
 	}
 };
 
