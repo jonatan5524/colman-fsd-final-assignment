@@ -23,6 +23,10 @@ export const Feed: React.FC<FeedProps> = ({
   const [editText, setEditText] = useState("");
   const [editImage, setEditImage] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeSearchQuery, setActiveSearchQuery] = useState("");
+  const isSearching = activeSearchQuery.trim().length > 0;
+  const [searchMeta, setSearchMeta] = useState<FeedResponse["meta"]>(undefined);
   const observerTarget = useRef<HTMLDivElement>(null);
   const skipRef = useRef(0);
   const isFetchingRef = useRef(false);
@@ -40,10 +44,15 @@ export const Feed: React.FC<FeedProps> = ({
       try {
         let data: FeedResponse;
 
-        if (myPostsOnly) {
+        if (activeSearchQuery.trim().length > 0) {
+          data = await postsService.searchPosts(activeSearchQuery);
+          setSearchMeta(data.meta);
+        } else if (myPostsOnly) {
           data = await postsService.getMyPosts(limit, skipValue);
+          setSearchMeta(undefined);
         } else {
           data = await postsService.getFeed(limit, skipValue);
+          setSearchMeta(undefined);
         }
 
         if (skipValue === 0) {
@@ -60,7 +69,7 @@ export const Feed: React.FC<FeedProps> = ({
         isFetchingRef.current = false;
       }
     },
-    [myPostsOnly, limit],
+    [myPostsOnly, limit, activeSearchQuery],
   );
 
   // Initial load
@@ -154,8 +163,60 @@ export const Feed: React.FC<FeedProps> = ({
     }
   };
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim().length > 0) {
+      setPosts([]);
+      skipRef.current = 0;
+      isFetchingRef.current = false;
+      if (activeSearchQuery === searchQuery) {
+        // If query is the same, manually trigger fetch
+        fetchPosts(0);
+      } else {
+        // Changing state will recreate fetchPosts and trigger useEffect automatically
+        setActiveSearchQuery(searchQuery);
+      }
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    if (activeSearchQuery !== "") {
+      setPosts([]);
+      setSearchMeta(undefined);
+      skipRef.current = 0;
+      isFetchingRef.current = false;
+      setActiveSearchQuery("");
+    }
+  };
+
   return (
     <div className="feed-container">
+      {!myPostsOnly && (
+        <>
+          <form className="smart-search-form" onSubmit={handleSearchSubmit}>
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Smart Search (e.g., 'something sweet')"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button type="submit" className="search-btn" disabled={!searchQuery.trim() || loading}>
+              {loading && !!searchQuery.trim() && skipRef.current === 0 ? "Searching..." : "Search"}
+            </button>
+            {isSearching && (
+              <button type="button" className="clear-search-btn" onClick={handleClearSearch} disabled={loading}>Clear</button>
+            )}
+          </form>
+          {searchMeta?.isAiEnhanced && (
+            <div className="search-meta">
+              Searched with AI: <strong>{searchMeta.searchTerms}</strong>
+            </div>
+          )}
+        </>
+      )}
+
       {error && <div className="feed-error">{error}</div>}
 
       <div className="posts-list">

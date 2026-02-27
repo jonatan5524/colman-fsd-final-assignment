@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Post from "../models/Post";
 import User from "../models/User";
+import { analyzeImage } from "../services/ai_service";
 
 // Controller functions will be implemented here for each route
 
@@ -33,9 +34,14 @@ export const createPost = async (req: Request, res: Response) => {
 
 		// Prepare image URL
 		let imageUrl: string | undefined;
+		let imageKeywords: string | undefined;
 		if (req.file) {
 			// Store relative path for serving via Express static middleware
 			imageUrl = `/uploads/posts/${req.file.filename}`;
+
+			// Extract keywords from image
+			const absoluteImagePath = req.file.path;
+			imageKeywords = await analyzeImage(absoluteImagePath);
 		}
 
 		// Create post
@@ -43,6 +49,7 @@ export const createPost = async (req: Request, res: Response) => {
 			authorId: userId,
 			content: content.trim(),
 			imageUrl,
+			imageKeywords,
 		});
 
 		await post.save();
