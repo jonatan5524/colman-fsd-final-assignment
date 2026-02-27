@@ -6,7 +6,7 @@ export interface IPost extends Document {
   content: string;
   imageUrl?: string;
   imageKeywords?: string;
-  likes: Types.ObjectId[];
+  likesCount: number;
   comments: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
@@ -31,12 +31,10 @@ const PostSchema: Schema = new Schema(
       type: String,
       required: false,
     },
-    likes: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
+    likesCount: {
+      type: Number,
+      default: 0,
+    },
     comments: [
       {
         type: Schema.Types.ObjectId,

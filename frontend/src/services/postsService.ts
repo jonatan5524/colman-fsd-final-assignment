@@ -9,7 +9,8 @@ export interface Post {
 	};
 	content: string;
 	imageUrl?: string;
-	likes: string[];
+	likesCount: number;
+	isLiked: boolean;
 	comments: string[];
 	createdAt: string;
 	updatedAt: string;
@@ -121,6 +122,11 @@ export const postsService = {
 			},
 			meta: response.data.meta
 		};
+  },
+	// Toggle like
+	async toggleLike(postId: string): Promise<{ isLiked: boolean; likesCount: number }> {
+		const response = await api.post<{ isLiked: boolean; likesCount: number }>(`/posts/${postId}/like`);
+		return response.data;
 	},
 };
 

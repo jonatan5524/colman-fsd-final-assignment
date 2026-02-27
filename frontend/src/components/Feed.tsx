@@ -234,7 +234,7 @@ export const Feed: React.FC<FeedProps> = ({
             onDelete={handleDelete}
             onEditTextChange={setEditText}
             onEditImageSelect={handleEditImageSelect}
-            sourceTab={myPostsOnly ? "my-posts" : "feed"}
+            sourceTab={myPostsOnly ? "profile" : "feed"}
           />
         ))}
       </div>

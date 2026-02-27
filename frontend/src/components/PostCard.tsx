@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Post } from "../services/postsService";
+import { postsService } from "../services/postsService";
 import ConfirmDialog from "./ConfirmDialog";
 import "../styles/PostCard.scss";
 
@@ -16,7 +17,7 @@ interface PostCardProps {
   onDelete: (postId: string) => void;
   onEditTextChange: (text: string) => void;
   onEditImageSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  sourceTab: "feed" | "my-posts";
+  sourceTab: "feed" | "profile";
 }
 
 const formatDate = (dateString: string) => {
@@ -52,6 +53,31 @@ export const PostCard: React.FC<PostCardProps> = ({
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const isOwner = post.authorId && currentUserId === post.authorId._id;
+
+  // Optimistic UI state for likes
+  const [isLiked, setIsLiked] = useState<boolean>(post.isLiked || false);
+  const [likesCount, setLikesCount] = useState<number>(post.likesCount || 0);
+
+  const handleToggleLike = async () => {
+    // Optimistic update
+    const previousIsLiked = isLiked;
+    const previousLikesCount = likesCount;
+
+    setIsLiked(!isLiked);
+    setLikesCount(isLiked ? Math.max(0, likesCount - 1) : likesCount + 1);
+
+    try {
+      const response = await postsService.toggleLike(post._id);
+      // Sync with server response
+      setIsLiked(response.isLiked);
+      setLikesCount(response.likesCount);
+    } catch (error) {
+      // Revert on failure
+      console.error("Failed to toggle like:", error);
+      setIsLiked(previousIsLiked);
+      setLikesCount(previousLikesCount);
+    }
+  };
 
   const handleDeleteClick = () => {
     setShowDeleteConfirm(true);
@@ -152,19 +178,26 @@ export const PostCard: React.FC<PostCardProps> = ({
           <span className="post-date">
             {new Date(post.createdAt).toLocaleString()}
           </span>
-          <button
-            type="button"
-            className="post-comments-link"
-            onClick={() =>
-              navigate(`/posts/${post._id}/comments`, {
-                state: { fromTab: sourceTab },
-              })
-            }
-          >
-            {post.comments.length === 0 && "No comments yet"}
-            {post.comments.length === 1 && "1 comment"}
-            {post.comments.length > 1 && `${post.comments.length} comments`}
-          </button>
+          <div className="post-interactions">
+            <button
+              type="button"
+              className={`like-button ${isLiked ? "liked" : ""}`}
+              onClick={handleToggleLike}
+            >
+              {isLiked ? "❤️" : "🤍"} {likesCount} {likesCount === 1 ? 'like' : 'likes'}
+            </button>
+            <button
+              type="button"
+              className="post-comments-link"
+              onClick={() =>
+                navigate(`/posts/${post._id}/comments`, {
+                  state: { fromTab: sourceTab },
+                })
+              }
+            >
+              💬 {post.comments.length === 0 ? "No comments yet" : `${post.comments.length} ${post.comments.length === 1 ? 'comment' : 'comments'}`}
+            </button>
+          </div>
         </div>
       </div>
 
