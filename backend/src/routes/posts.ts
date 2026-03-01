@@ -4,6 +4,7 @@ import { upload } from "../middleware/multer";
 import { authenticateToken } from "../middleware/authMiddleware";
 import * as postsController from "../controllers/postsController";
 import * as commentsController from "../controllers/commentsController";
+import * as searchController from "../controllers/searchController";
 
 /**
  * @swagger
@@ -150,6 +151,35 @@ router.get(
   "/",
   authenticateToken,
   postsController.getFeed
+);
+
+/**
+ * @swagger
+ * /api/posts/search:
+ *   get:
+ *     summary: Smart search for posts using AI keyword extraction
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The free-text query to search for
+ *     responses:
+ *       200:
+ *         description: Search results
+ *       400:
+ *         description: Invalid query
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  "/search",
+  authenticateToken,
+  searchController.searchPosts,
 );
 
 /**

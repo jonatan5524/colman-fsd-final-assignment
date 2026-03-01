@@ -29,6 +29,12 @@ export interface FeedResponse {
 		total: number;
 		hasMore: boolean;
 	};
+	meta?: {
+		originalQuery: string;
+		searchTerms: string;
+		isAiEnhanced: boolean;
+		count: number;
+	};
 }
 
 export const postsService = {
@@ -101,6 +107,22 @@ export const postsService = {
 		await api.delete(`/posts/${postId}`);
 	},
 
+	// Search posts
+	async searchPosts(query: string): Promise<FeedResponse> {
+		const response = await api.get<{ posts: Post[], meta: FeedResponse['meta'] }>('/posts/search', {
+			params: { q: query },
+		});
+		return {
+			posts: response.data.posts,
+			pagination: {
+				limit: response.data.posts.length,
+				skip: 0,
+				total: response.data.posts.length,
+				hasMore: false,
+			},
+			meta: response.data.meta
+		};
+  },
 	// Toggle like
 	async toggleLike(postId: string): Promise<{ isLiked: boolean; likesCount: number }> {
 		const response = await api.post<{ isLiked: boolean; likesCount: number }>(`/posts/${postId}/like`);

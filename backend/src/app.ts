@@ -11,6 +11,7 @@ import { swaggerSpec } from "./config/swagger";
 import authRoutes from "./routes/authRoutes";
 import postsRouter from "./routes/posts";
 import commentsRouter from "./routes/comments";
+import aiRoutes from "./routes/aiRoutes";
 
 const envFile =
   process.env.NODE_ENV === "production"
@@ -20,8 +21,6 @@ dotenv.config({ path: path.resolve(__dirname, "..", envFile) });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI =
-  process.env.MONGODB_URI || "mongodb://localhost:27017/fsd-posts";
 
 // Request logging (skip in test environment)
 if (process.env.NODE_ENV !== "test") {
@@ -44,9 +43,10 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/auth", authRoutes);
-app.use("/profile", profileRoutes); 
+app.use("/profile", profileRoutes);
 app.use("/posts", postsRouter);
 app.use("/comments", commentsRouter);
+app.use("/api/ai", aiRoutes);
 
 app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
   console.error("Error:", err.message);

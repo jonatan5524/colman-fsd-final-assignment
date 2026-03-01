@@ -5,6 +5,7 @@ export interface IPost extends Document {
   authorId: Types.ObjectId;
   content: string;
   imageUrl?: string;
+  imageKeywords?: string;
   likesCount: number;
   comments: Types.ObjectId[];
   createdAt: Date;
@@ -26,6 +27,10 @@ const PostSchema: Schema = new Schema(
       type: String,
       required: false,
     },
+    imageKeywords: {
+      type: String,
+      required: false,
+    },
     likesCount: {
       type: Number,
       default: 0,
@@ -43,5 +48,6 @@ const PostSchema: Schema = new Schema(
 );
 
 PostSchema.index({ createdAt: -1 });
+PostSchema.index({ content: "text", imageKeywords: "text" });
 
 export default mongoose.model<IPost>("Post", PostSchema);
