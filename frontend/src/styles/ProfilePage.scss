@@ -4,7 +4,7 @@
   padding: 0 20px;
 
   .profile-card {
-    background: white;
+    background: var(--bg-primary);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     padding: 32px;
@@ -38,14 +38,14 @@
         margin: 0;
         font-size: 24px;
         font-weight: 700;
-        color: #1a1a1a;
+        color: var(--text-primary);
       }
 
       .edit-username-input {
         font-size: 20px;
         padding: 8px 12px;
         margin-top: 10px;
-        border: 1px solid #e0e0e0;
+        border: 1px solid var(--border-color);
         border-radius: 6px;
         text-align: center;
         width: 100%;
@@ -66,7 +66,7 @@
       padding-top: 24px;
 
       .profile-email {
-        color: #65676b;
+        color: var(--text-secondary);
         font-size: 16px;
         margin: 0;
       }
@@ -77,7 +77,7 @@
   .error-state {
     text-align: center;
     padding: 20px;
-    color: #65676b;
+    color: var(--text-secondary);
     font-size: 16px;
   }
 
