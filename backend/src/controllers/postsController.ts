@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Like from "../models/Like";
 import fs from "fs";
 import path from "path";
+import { URL } from "url";
 import { Types } from "mongoose";
 import Post from "../models/Post";
 import { analyzeImage } from "../services/ai_service";
@@ -33,8 +34,8 @@ export const createPost = async (req: Request, res: Response) => {
 		let imageUrl: string | undefined;
 		let imageKeywords: string | undefined;
 		if (req.file) {
-			// Store relative path for serving via Express static middleware
-			imageUrl = `/uploads/posts/${req.file.filename}`;
+			// Store absolute URL for frontend consumption
+			imageUrl = `${req.protocol}://${req.get("host")}/uploads/posts/${req.file.filename}`;
 
 			// Extract keywords from image
 			const absoluteImagePath = req.file.path;
@@ -125,7 +126,7 @@ export const getFeed = async (req: Request, res: Response) => {
 			const postIds = posts.map(p => p._id);
 			const likes = await Like.find({ postId: { $in: postIds }, userId }).lean();
 			const likedPostIds = new Set(likes.map(l => l.postId.toString()));
-			
+
 			postsWithLikes = posts.map(p => ({
 				...p,
 				isLiked: likedPostIds.has(p._id.toString()),
@@ -173,7 +174,7 @@ export const getMyPosts = async (req: Request, res: Response) => {
 			const postIds = posts.map(p => p._id);
 			const likes = await Like.find({ postId: { $in: postIds }, userId: currentUserId }).lean();
 			const likedPostIds = new Set(likes.map(l => l.postId.toString()));
-			
+
 			postsWithLikes = posts.map(p => ({
 				...p,
 				isLiked: likedPostIds.has(p._id.toString()),
@@ -242,7 +243,11 @@ export const updatePost = async (req: Request, res: Response) => {
 		if (req.file) {
 			// Delete old image if exists
 			if (post.imageUrl) {
-				const oldImagePath = path.join(__dirname, "../../", post.imageUrl);
+				let relativePath = post.imageUrl;
+				if (relativePath.startsWith("http")) {
+					try { relativePath = new URL(relativePath).pathname; } catch (e) { }
+				}
+				const oldImagePath = path.join(__dirname, "../../", relativePath);
 				try {
 					if (fs.existsSync(oldImagePath)) {
 						fs.unlinkSync(oldImagePath);
@@ -251,7 +256,7 @@ export const updatePost = async (req: Request, res: Response) => {
 					console.error("Error deleting old image:", err);
 				}
 			}
-			post.imageUrl = `/uploads/posts/${req.file.filename}`;
+			post.imageUrl = `${req.protocol}://${req.get("host")}/uploads/posts/${req.file.filename}`;
 		}
 
 		await post.save();
@@ -310,7 +315,11 @@ export const deletePost = async (req: Request, res: Response) => {
 
 		// Delete image file if exists
 		if (post.imageUrl) {
-			const imagePath = path.join(__dirname, "../../", post.imageUrl);
+			let relativePath = post.imageUrl;
+			if (relativePath.startsWith("http")) {
+				try { relativePath = new URL(relativePath).pathname; } catch (e) { }
+			}
+			const imagePath = path.join(__dirname, "../../", relativePath);
 			try {
 				if (fs.existsSync(imagePath)) {
 					fs.unlinkSync(imagePath);
@@ -355,7 +364,7 @@ export const getPostsByUser = async (req: Request, res: Response) => {
 			const postIds = posts.map(p => p._id);
 			const likes = await Like.find({ postId: { $in: postIds }, userId: currentUserId }).lean();
 			const likedPostIds = new Set(likes.map(l => l.postId.toString()));
-			
+
 			postsWithLikes = posts.map(p => ({
 				...p,
 				isLiked: likedPostIds.has(p._id.toString()),

@@ -53,7 +53,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
 		}
 
 		if (req.file) {
-			user.profilePicUrl = `/uploads/profiles/${req.file.filename}`;
+			user.profilePicUrl = `${req.protocol}://${req.get("host")}/uploads/profiles/${req.file.filename}`;
 		}
 
 		await user.save();
