@@ -7,17 +7,17 @@ $error-color: #ef4444;
 $warning-color: #f59e0b;
 
 // Background colors
-$bg-primary: #ffffff;
-$bg-secondary: #f9fafb;
-$bg-tertiary: #f3f4f6;
+$bg-primary: var(--bg-primary);
+$bg-secondary: var(--bg-secondary);
+$bg-tertiary: var(--bg-tertiary);
 
 // Text colors
-$text-primary: #111827;
-$text-secondary: #6b7280;
-$text-muted: #9ca3af;
+$text-primary: var(--text-primary);
+$text-secondary: var(--text-secondary);
+$text-muted: var(--text-muted);
 
 // Border colors
-$border-color: #e5e7eb;
+$border-color: var(--border-color);
 $border-focus: $primary-color;
 
 // Shadows

@@ -14,7 +14,7 @@
 }
 
 .home-header {
-	background: rgba($bg-primary, 0.95);
+	background: color-mix(in srgb, $bg-primary 95%, transparent);
 	backdrop-filter: blur(10px);
 	box-shadow: $shadow-md;
 	padding: $spacing-4 $spacing-6;
@@ -55,7 +55,7 @@
 	transition: all $transition-fast;
 
 	&:hover {
-		background: $bg-tertiary;
+		background: var(--bg-hover);
 		color: $text-primary;
 	}
 
@@ -94,7 +94,7 @@
 
 // Override Feed container styles for home page
 .home-page .feed-container {
-	background: rgba($bg-primary, 0.95);
+	background: color-mix(in srgb, $bg-primary 95%, transparent);
 	backdrop-filter: blur(10px);
 	border-radius: $radius-2xl;
 	box-shadow: $shadow-lg;
@@ -111,7 +111,7 @@
 }
 
 .home-page .create-post-card {
-	background: rgba($bg-primary, 0.95);
+	background: color-mix(in srgb, $bg-primary 95%, transparent);
 	backdrop-filter: blur(10px);
 	border-radius: $radius-2xl;
 	box-shadow: $shadow-lg;
@@ -120,13 +120,13 @@
 
 .home-page .image-upload-label {
 	color: $text-primary;
-	background: $bg-tertiary;
+	background: var(--bg-hover);
 	border-color: $border-color;
 }
 
 // Override post cards for consistency
 .home-page .post-card {
-	background: $bg-secondary;
+	background: var(--bg-hover);
 	border-radius: $radius-xl;
 	box-shadow: $shadow-sm;
 	
@@ -146,7 +146,7 @@
 }
 
 .home-page .profile-card {
-	background: rgba($bg-primary, 0.95);
+	background: color-mix(in srgb, $bg-primary 95%, transparent);
 	backdrop-filter: blur(10px);
 	border-radius: $radius-2xl;
 	box-shadow: $shadow-lg;

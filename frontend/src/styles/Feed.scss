@@ -20,7 +20,7 @@
 }
 
 .post-card {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   padding: 16px;
@@ -60,12 +60,12 @@
   margin: 0;
   font-size: 15px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-primary);
 }
 
 .post-time {
   font-size: 13px;
-  color: #65676b;
+  color: var(--text-secondary);
 }
 
 .post-actions {
@@ -96,7 +96,7 @@
   margin: 0 0 12px 0;
   font-size: 15px;
   line-height: 1.5;
-  color: #1a1a1a;
+  color: var(--text-primary);
   word-break: break-word;
 }
 
@@ -110,9 +110,9 @@
 
 .post-footer {
   padding-top: 8px;
-  border-top: 1px solid #e5e5e5;
+  border-top: 1px solid var(--border-color);
   font-size: 13px;
-  color: #65676b;
+  color: var(--text-secondary);
 }
 
 .post-date {
@@ -122,21 +122,21 @@
 .loading-more {
   text-align: center;
   padding: 20px;
-  color: #65676b;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
 .no-more-posts {
   text-align: center;
   padding: 20px;
-  color: #999;
+  color: var(--text-muted);
   font-size: 14px;
 }
 
 .no-posts {
   text-align: center;
   padding: 40px 20px;
-  color: #999;
+  color: var(--text-muted);
   font-size: 16px;
 }
 
@@ -150,7 +150,7 @@
     flex: 1;
     padding: 12px 16px;
     font-size: 15px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
     border-radius: 24px;
     outline: none;
     transition: all 0.2s ease;
@@ -171,11 +171,11 @@
   }
   
   .search-btn {
-    background: #1976d2;
+    background: var(--primary-color);
     color: white;
     
     &:hover:not(:disabled) {
-      background: #1565c0;
+      background: var(--primary-hover);
     }
     
     &:disabled {
@@ -185,11 +185,11 @@
   }
   
   .clear-search-btn {
-    background: #f5f5f5;
-    color: #666;
+    background: var(--bg-secondary);
+    color: var(--text-muted);
     
     &:hover {
-      background: #e0e0e0;
+      background: var(--bg-hover);
     }
     
     &:disabled {
@@ -201,7 +201,7 @@
 
 .search-meta {
   font-size: 13px;
-  color: #65676b;
+  color: var(--text-secondary);
   margin-top: -16px;
   margin-bottom: 24px;
   padding: 0 4px;
@@ -215,13 +215,13 @@
 /* Edit Form Styles */
 .edit-post-form {
   padding: 16px;
-  background: #f5f5f5;
+  background: var(--bg-secondary);
   border-radius: 8px;
 }
 
 .edit-textarea {
   width: 100%;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 12px;
   font-family: inherit;
@@ -247,8 +247,8 @@
 .edit-image-label {
   display: inline-block;
   padding: 8px 16px;
-  background: #f0f0f0;
-  border: 1px solid #e0e0e0;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
@@ -256,7 +256,7 @@
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: #e0e0e0;
+    background-color: var(--border-color);
   }
 }
 

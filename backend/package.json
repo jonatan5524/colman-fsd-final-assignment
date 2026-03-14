@@ -4,9 +4,10 @@
   "main": "dist/app.js",
   "scripts": {
     "dev": "set NODE_ENV=development && nodemon --exec ts-node src/app.ts",
-    "build": "tsc",
+    "build": "tsc -p tsconfig_prod.json",
     "seed": "ts-node scripts/seed.ts",
     "start": "NODE_ENV=production node dist/app.js",
+    "prod": "tsc -p tsconfig_prod.json && cp .env.production dist/ && pm2 start ecosystem.config.js --env production",
     "test": "set NODE_ENV=test && jest --detectOpenHandles --forceExit",
     "test:coverage": "NODE_ENV=test jest --coverage --detectOpenHandles --forceExit"
   },

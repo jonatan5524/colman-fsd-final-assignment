@@ -2,6 +2,9 @@
 import dotenv from "dotenv";
 import path from "path";
 import express, { Request, Response, NextFunction } from "express";
+import fs from "fs";
+import http from "http";
+import https from "https";
 import cors from "cors";
 import morgan from "morgan";
 import profileRoutes from "./routes/profileRoutes";
@@ -29,7 +32,7 @@ if (process.env.NODE_ENV !== "test") {
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: true, // Reflects the request origin, allowing all origins
     credentials: true,
   }),
 );
@@ -61,12 +64,27 @@ const startServer = async () => {
       console.log("Connected to MongoDB");
     }
 
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-      console.log(
-        `Swagger docs available at http://localhost:${PORT}/api-docs`,
-      );
-    });
+    if (process.env.NODE_ENV === "production") {
+      const privateKey = fs.readFileSync(path.join(process.cwd(), "cert", "key.pem"), "utf8");
+      const certificate = fs.readFileSync(path.join(process.cwd(), "cert", "cert.pem"), "utf8");
+      const credentials = { key: privateKey, cert: certificate };
+
+      const httpsServer = https.createServer(credentials, app);
+      httpsServer.listen(PORT, () => {
+        console.log(`HTTPS Server is running on port ${PORT}`);
+        console.log(
+          `Swagger docs available at https://localhost:${PORT}/api-docs`,
+        );
+      });
+    } else {
+      const httpServer = http.createServer(app);
+      httpServer.listen(PORT, () => {
+        console.log(`HTTP Server is running on port ${PORT}`);
+        console.log(
+          `Swagger docs available at http://localhost:${PORT}/api-docs`,
+        );
+      });
+    }
   } catch (error) {
     console.error("Failed to start server:", error);
     process.exit(1);

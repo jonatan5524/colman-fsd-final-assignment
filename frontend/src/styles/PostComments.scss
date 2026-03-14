@@ -1,5 +1,5 @@
 .post-comments-page {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-primary);
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   padding: 20px 24px;
@@ -37,7 +37,7 @@
   width: 100%;
   min-height: 80px;
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
   padding: 8px;
   font-family: inherit;
   resize: vertical;
@@ -51,7 +51,7 @@
 }
 
 .submit-comment-button {
-  background-color: #1976d2;
+  background-color: var(--primary-color);
   color: white;
   border: none;
   border-radius: 999px;
@@ -66,7 +66,7 @@
 }
 
 .no-comments {
-  color: #65676b;
+  color: var(--text-secondary);
   font-size: 14px;
   margin-top: 8px;
 }
@@ -79,12 +79,12 @@
 
 .comment-item {
   padding: 12px 0;
-  border-top: 1px solid #e5e5e5;
+  border-top: 1px solid var(--border-color);
   transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .comment-item:hover {
-  background-color: #f8f9fb;
+  background-color: var(--bg-hover);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
@@ -120,7 +120,7 @@
 
 .comment-time {
   font-size: 12px;
-  color: #65676b;
+  color: var(--text-secondary);
 }
 
 .comment-content {

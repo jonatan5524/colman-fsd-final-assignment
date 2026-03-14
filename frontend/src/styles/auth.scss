@@ -81,7 +81,7 @@
 		}
 		
 		&:disabled {
-			background: $bg-tertiary;
+			background: var(--bg-hover);
 			cursor: not-allowed;
 		}
 	}
@@ -158,7 +158,7 @@
 	gap: $spacing-3;
 	width: 100%;
 	padding: $spacing-3 $spacing-4;
-	background: white;
+	background: var(--bg-primary);
 	border: 1px solid $border-color;
 	border-radius: $radius-lg;
 	font-size: $font-size-base;
@@ -168,7 +168,7 @@
 	transition: background $transition-fast, border-color $transition-fast, box-shadow $transition-fast;
 	
 	&:hover:not(:disabled) {
-		background: $bg-secondary;
+		background: var(--bg-hover);
 		border-color: $google-blue;
 		box-shadow: $shadow-sm;
 	}
@@ -229,7 +229,7 @@
 	align-items: center;
 	justify-content: center;
 	gap: $spacing-4;
-	background: $bg-secondary;
+	background: var(--bg-hover);
 	
 	.loading-spinner {
 		width: 40px;
