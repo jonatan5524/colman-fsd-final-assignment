@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "posts-api",
-      script: "./dist/app.js",
+      script: "./dist/src/app.js",
       instances: "max",
       exec_mode: "cluster",
       env: {
